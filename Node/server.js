@@ -13,6 +13,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+let isConnected = false;
+
 // Connect to MongoDB once (reuse connection for serverless)
 async function connectToMongoDB() {
   try {
