@@ -1,7 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import serverless from "serverless-http";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import itemRouter from "./src/routes/itemRoutes.js";
@@ -55,14 +54,10 @@ app.use(
   itemRouter,
 );
 
-
-app.use("/file", express.static("uploads"));
-
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ message: "Server Error" });
 });
 
-// Wrap Express app with serverless-http
-export default serverless(app);
+app.listen(5000, () => console.log("listening..."));
