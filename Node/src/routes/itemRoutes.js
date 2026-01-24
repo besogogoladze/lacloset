@@ -18,7 +18,7 @@ itemRoutes.get("/", authMiddleware, getItemByLanguage);
 
 itemRoutes.get("/itemsList", authMiddleware, getAllItems);
 
-itemRoutes.get("/getItem:nom", authMiddleware, getItem);
+itemRoutes.get("/getItem/:nom", authMiddleware, getItem);
 
 itemRoutes.put("/updateItem/:id", authMiddleware, updateItem);
 
