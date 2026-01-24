@@ -8,7 +8,7 @@ import itemRouter from "./routes/itemRoutes.js";
 import imageRouter from "./routes/imageRoutes.js";
 
 dotenv.config();
-connectDB();
+await connectDB();
 
 const app = express();
 app.use(cors());
@@ -22,5 +22,6 @@ app.use("/api/v1/item", itemRouter);
 app.use("/api/images", imageRouter);
 app.use("/file", express.static("uploads"));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
+export default app;
