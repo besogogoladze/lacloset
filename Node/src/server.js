@@ -8,17 +8,19 @@ import itemRouter from "./routes/itemRoutes.js";
 import imageRouter from "./routes/imageRoutes.js";
 
 dotenv.config();
+
+const app = express();
+
 app.use(async (req, res, next) => {
   await connectDB();
   next();
 });
 
-const app = express();
 app.use(cors());
 // { origin: "*", credentials: true }
 app.use(express.json());
 
-app.use("/", async (res, req) => {
+app.use("/", async (req, res) => {
   res.json({ name: "beso" });
 });
 
