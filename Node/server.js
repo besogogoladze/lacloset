@@ -16,37 +16,34 @@ app.use(express.json());
 let isConnected = false;
 
 // Connect to MongoDB once (reuse connection for serverless)
-async function connectToMongoDB() {
+const connectToMongoDB = async () => {
+  if (isConnected) return; // reuse connection
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGO_URI);
     isConnected = true;
     console.log("Connected to MongoDB");
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+    throw err; // make sure serverless returns 500 if DB fails
   }
-}
+};
 
-app.use((req, res, next) => {
-  if (!isConnected) {
-    connectToMongoDB();
-  }
+// Middleware to ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+  if (!isConnected) await connectToMongoDB();
   next();
 });
 
+// Routes
 app.use("/api/v1", routes);
-
 app.use("/api/v1/auth", authRoutes);
-
 app.use("/api/v1/item", itemRouter);
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err);
-  console.log(err);
   res.status(500).json({ message: "Server Error" });
 });
 
+// Export for Vercel serverless
 export default serverless(app);
