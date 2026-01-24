@@ -14,56 +14,62 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ===== Serverless-friendly MongoDB Connection =====
+// ==========================
+// Serverless-Friendly MongoDB
+// ==========================
 let cached = global.mongoose;
 
 if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
-const connectToMongoDB = async () => {
+async function connectToMongoDB() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(process.env.MONGO_URI, {
-        // optional settings
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 5000, // 5 sec timeout
-      })
-      .then((mongoose) => {
-        console.log("Connected to MongoDB");
-        return mongoose;
-      })
-      .catch((err) => {
-        console.error("MongoDB connection error:", err);
-        throw err;
-      });
+    cached.promise = mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // fail fast if DB unreachable
+    });
   }
 
-  cached.conn = await cached.promise;
-  return cached.conn;
-};
-
-// Middleware to ensure DB is connected before handling requests
-app.use(async (req, res, next) => {
   try {
-    await connectToMongoDB();
-    next();
+    cached.conn = await cached.promise;
+    console.log("Connected to MongoDB");
+    return cached.conn;
   } catch (err) {
-    res.status(500).json({ message: "Database connection error" });
+    cached.promise = null; // reset so next request can retry
+    console.error("MongoDB connection failed:", err);
+    throw err;
   }
-});
+}
 
-// ===== Routes =====
+// ==========================
+// Routes
+// ==========================
+
 app.use("/api/v1", routes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/item", itemRouter);
 
-// ===== Global Error Handler =====
+// ==========================
+// Global Error Handler
+// ==========================
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
   res.status(500).json({ message: "Server Error" });
 });
 
-// ===== Export for Vercel =====
-export default serverless(app);
+// ==========================
+// Vercel Serverless Handler
+// ==========================
+const handler = serverless(app);
+
+// Connect to MongoDB before handling any request
+export default async function (req, res) {
+  try {
+    await connectToMongoDB(); // ensure DB connection before running routes
+    return handler(req, res); // pass request to Express
+  } catch (err) {
+    res.status(500).json({ message: "Database connection error" });
+  }
+}
