@@ -1,10 +1,11 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import serverless from "serverless-http";
 import authRoutes from "./src/routes/authRoutes.js";
 import itemRouter from "./src/routes/itemRoutes.js";
 import routes from "./src/routes/routes.js";
-import serverless from "serverless-http";
+import mongoose from "mongoose";
 
 dotenv.config();
 
