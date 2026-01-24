@@ -1,7 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import itemRouter from "./src/routes/itemRoutes.js";
 import routes from "./src/routes/routes.js";
@@ -14,46 +13,31 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB once (reuse connection for serverless)
-let isConnected = false;
-const dbConnect = async () => {
-  if (!isConnected) {
-    await connectDB();
+async function connectToMongoDB() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     isConnected = true;
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
   }
-};
+}
 
-// Routes
-app.use("/", async (req, res) => {
-  await dbConnect();
-  res.json({ name: "beso" });
+app.use((req, res, next) => {
+  if (!isConnected) {
+    connectToMongoDB();
+  }
+  next();
 });
 
-app.use(
-  "/api/v1",
-  async (req, res, next) => {
-    await dbConnect();
-    next();
-  },
-  routes,
-);
+app.use("/api/v1", routes);
 
-app.use(
-  "/api/v1/auth",
-  async (req, res, next) => {
-    await dbConnect();
-    next();
-  },
-  authRoutes,
-);
+app.use("/api/v1/auth", authRoutes);
 
-app.use(
-  "/api/v1/item",
-  async (req, res, next) => {
-    await dbConnect();
-    next();
-  },
-  itemRouter,
-);
+app.use("/api/v1/item", itemRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
