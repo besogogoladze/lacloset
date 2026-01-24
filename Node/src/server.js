@@ -18,6 +18,10 @@ app.use(cors());
 // { origin: "*", credentials: true }
 app.use(express.json());
 
+app.use("/", async (res, req) => {
+  res.json({ name: "beso" });
+});
+
 // Routes
 app.use("/api/v1", routes);
 app.use("/api/v1/auth", authRoutes);
