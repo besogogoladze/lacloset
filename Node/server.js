@@ -5,6 +5,7 @@ import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import itemRouter from "./src/routes/itemRoutes.js";
 import routes from "./src/routes/routes.js";
+import serverless from "serverless-http";
 
 dotenv.config();
 
@@ -60,4 +61,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Server Error" });
 });
 
-app.listen(5000, () => console.log("listening..."));
+export default serverless(app);
