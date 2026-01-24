@@ -8,7 +8,10 @@ import itemRouter from "./routes/itemRoutes.js";
 import imageRouter from "./routes/imageRoutes.js";
 
 dotenv.config();
-await connectDB();
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 const app = express();
 app.use(cors());
