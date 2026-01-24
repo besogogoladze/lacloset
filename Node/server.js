@@ -39,10 +39,4 @@ app.use("/api/v1/auth", authRoutes);
 
 app.use("/api/v1/item", itemRouter);
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: "Server Error" });
-});
-
 export default serverless(app);
