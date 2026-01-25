@@ -40,7 +40,7 @@ function ForgotPasswordPage() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh",
+          minHeight: "calc(100vh - 64px)",
           backgroundColor: "#f0f2f5",
           padding: "20px",
         }}

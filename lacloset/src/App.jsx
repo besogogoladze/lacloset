@@ -33,7 +33,7 @@ function App() {
       <Router>
         <AuthProvider>
           <Header />
-          <div className="pt-20">
+          <div className="pt-16">
             <Routes>
               {/* Public routes for login/signup (redirect if logged in) */}
               <Route element={<PublicRoute />}>
