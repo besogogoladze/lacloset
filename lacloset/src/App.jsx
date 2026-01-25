@@ -12,7 +12,7 @@ import Error404 from "./pages/Error404";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import PasswordResetFlow from "./pages/PasswordResetFlow";
-import SignupPage from "./pages/SignupPage";
+// import SignupPage from "./pages/SignupPage";
 import PrivateRoute from "./router/PrivateRoute";
 import PublicRoute from "./router/PublicRoute";
 import AddItem from "./pages/AddItem";
@@ -38,7 +38,7 @@ function App() {
               {/* Public routes for login/signup (redirect if logged in) */}
               <Route element={<PublicRoute />}>
                 <Route path="/" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
+                {/* <Route path="/signup" element={<SignupPage />} /> */}
               </Route>
 
               {/* Password reset routes are always public */}

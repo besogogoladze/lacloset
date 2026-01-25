@@ -4,7 +4,6 @@ import React, {
   useContext,
   useState,
   useMemo,
-  useEffect,
 } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +12,7 @@ import { toast } from "react-toastify";
 import {
   login,
   verifyLoginCode,
-  signup,
+  // signup,
   forgotPassword,
   verifyForgotPassword,
   sendChangePasswordCode,
@@ -67,13 +66,13 @@ export const AuthProvider = ({ children }) => {
   // -----------------------------
   // SIGNUP
   // -----------------------------
-  const signupMutation = useMutation({
-    mutationFn: signup,
-    onSuccess: () => {
-      toast.success("Signup successful!");
-      navigate("/login");
-    },
-  });
+  // const signupMutation = useMutation({
+  //   mutationFn: signup,
+  //   onSuccess: () => {
+  //     toast.success("Signup successful!");
+  //     navigate("/login");
+  //   },
+  // });
 
   // -----------------------------
   // LOGOUT
@@ -122,7 +121,7 @@ export const AuthProvider = ({ children }) => {
 
         loginMutation,
         verifyCodeMutation,
-        signupMutation,
+        // signupMutation,
 
         forgotPasswordMutation,
         resetPasswordMutation,

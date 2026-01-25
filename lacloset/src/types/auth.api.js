@@ -29,13 +29,13 @@ export const verifyLoginCode = async ({ email, providedCode }) => {
 // -----------------------------
 // SIGNUP
 // -----------------------------
-export const signup = async ({ email, password }) => {
-  const res = await api.post("/auth/signup", {
-    email,
-    password,
-  });
-  return res.data;
-};
+// export const signup = async ({ email, password }) => {
+//   const res = await api.post("/auth/signup", {
+//     email,
+//     password,
+//   });
+//   return res.data;
+// };
 
 // -----------------------------
 // FORGOT PASSWORD

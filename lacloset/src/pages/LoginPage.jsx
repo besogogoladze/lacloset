@@ -105,13 +105,13 @@ function LoginPage() {
                   Forgot Password?
                 </Button>
 
-                <Button
+                {/* <Button
                   type="link"
                   onClick={() => navigate("/signup")}
                   className="text-sm"
                 >
                   Don’t have an account? Sign up
-                </Button>
+                </Button> */}
               </div>
             </Form>
           </>
