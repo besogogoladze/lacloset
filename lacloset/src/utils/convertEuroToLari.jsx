@@ -9,5 +9,5 @@ export const calculateProfitPercent = async (
   const baseEuro = euroPrice + shippingEuro;
   const baseLari = baseEuro * rate;
   const profitInLari = priceInLari - baseLari;
-  return profitInLari;
+  return { profitInLari, rate };
 };

@@ -12,6 +12,7 @@ function Dashboard() {
   const { data: items = [], isLoading } = useItems();
   const [filteredItems, setFilteredItems] = useState([]);
   const [profits, setProfits] = useState({});
+  const [rate, setRate] = useState(null);
   const { mutate: deleteItem, isLoading: deleteLoading } = useDeleteItems();
   const updateItemStatus = useUpdateItemStatus();
 
@@ -20,10 +21,15 @@ function Dashboard() {
       const results = {};
       for (const item of items) {
         try {
+          const { rate } = await calculateProfitPercent(
+            item.price,
+            item.priceInLari,
+          );
           results[item._id] = await calculateProfitPercent(
             item.price,
             item.priceInLari,
           );
+          setRate(rate);
         } catch {
           results[item._id] = 0;
         }
@@ -74,8 +80,7 @@ function Dashboard() {
           {filteredItems.map((item) => (
             <Card
               key={item._id}
-              className="max-w-96 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-              bodyStyle={{ padding: 20 }}
+              className="max-w-96 p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
             >
               {/* Title */}
               <h2 className="max-[460px]:text-center text-lg font-semibold mb-3 truncate">
@@ -95,37 +100,42 @@ function Dashboard() {
 
               {/* Info */}
               <div className="space-y-2 text-sm">
-                <p className="text-gray-600 wrap-break-word">
+                <p className="text-gray-600 wrap-break-word font-medium">
                   {item.description}
                 </p>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Size</span>
+                  <span className=" font-medium">Size</span>
                   <span className="font-medium">{item.size}</span>
                 </div>
 
                 <div className="border-t pt-2 space-y-1">
-                  <div className="flex justify-between">
-                    <span>Price</span>
+                  <div className="flex justify-between font-medium">
+                    <span>Price:</span>
                     <span>{item.price}€</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Price (₾)</span>
+                  <div className="flex justify-between font-medium">
+                    <span>Price (₾):</span>
                     <span>{item.priceInLari}₾</span>
                   </div>
                   <div className="flex justify-between font-medium">
-                    <span>Profit</span>
+                    <span>Profit:</span>
                     <span>
-                      {profits[item._id] !== undefined
-                        ? profits[item._id].toFixed(2)
+                      {profits[item._id]?.profitInLari !== undefined
+                        ? profits[item._id]?.profitInLari.toFixed(2)
                         : "xxx"}
                       ₾
                     </span>
                   </div>
+
+                  <div className="flex justify-between font-medium">
+                    <span>Current currency:</span>
+                    <span>{rate}</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-gray-500">Status</span>
+                  <span className="font-medium">Status</span>
                   <Tag color={item.status ? "green" : "red"}>
                     {item.status ? "Available" : "Sold"}
                   </Tag>
