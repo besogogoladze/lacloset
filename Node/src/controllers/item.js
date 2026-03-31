@@ -18,7 +18,7 @@ export const createItem = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Item successfully created",
+      message: "პროდუქტი წარმატებით შეიქმნა",
       item: newItem,
     });
   } catch (error) {
@@ -44,12 +44,12 @@ export const updateItem = async (req, res) => {
     if (!updatedItem) {
       return res
         .status(404)
-        .json({ success: false, message: "Item not found" });
+        .json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Item updated successfully",
+      message: "პროდუქტი წარმატებით განახლდა",
       item: updatedItem,
     });
   } catch (error) {
@@ -65,7 +65,7 @@ export const updateItemStatus = async (req, res) => {
     const foundedItem = await item.findById(id);
 
     if (!foundedItem) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
     }
 
     foundedItem.status = status;
@@ -74,7 +74,7 @@ export const updateItemStatus = async (req, res) => {
     res.json({ success: true, foundedItem });
   } catch (error) {
     console.error("Error updating item status:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -88,12 +88,12 @@ export const deleteItem = async (req, res) => {
     if (result.deletedCount === 0) {
       return res
         .status(404)
-        .json({ success: false, message: "Item not found" });
+        .json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Item deleted successfully",
+      message: "პროდუქტი წარმატებით წაიშალა",
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -110,7 +110,7 @@ export const getItem = async (req, res) => {
     if (!item) {
       return res
         .status(404)
-        .json({ success: false, message: "Item not found" });
+        .json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
     }
 
     return res.status(200).json({
@@ -130,7 +130,7 @@ export const getAllItems = async (req, res) => {
     if (items.length === 0) {
       return res
         .status(200)
-        .json({ success: true, message: "No Items in database", items: [] });
+        .json({ success: true, message: "პროდუქტები ვერ მოიძებნა", items: [] });
     }
 
     return res.status(200).json({ success: true, items });

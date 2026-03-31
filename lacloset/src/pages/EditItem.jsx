@@ -85,7 +85,7 @@ function EditItem() {
             <Form.Item
               label="მყიდველი"
               name="buyer"
-              rules={[{ required: true, message: "Please enter buyer name" }]}
+              rules={[{ required: true, message: "გთხოვთ შეიყვანოთ მყიდველის სახელი და გვარი" }]}
             >
               <Input placeholder="მყიდველის სახელი და გვარი" />
             </Form.Item>
@@ -93,7 +93,7 @@ function EditItem() {
             <Form.Item
               label="გაყიდული ნივთი"
               name="soldItem"
-              rules={[{ required: true, message: "Please enter sold item" }]}
+              rules={[{ required: true, message: "გთხოვთ შეიყვანოთ გაყიდული ნივთი" }]}
             >
               <Input.TextArea
                 rows={4}
