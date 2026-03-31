@@ -28,12 +28,18 @@ function EditItem() {
   }, [item, form]);
 
   const onFinish = (values) => {
-    // Compute totalProfit
     const payload = {
       ...values,
+      priceInEuros: Math.round(values.priceInEuros * 100) / 100,
+      priceInLari: Math.round(values.priceInLari * 100) / 100,
+      pricePayedByClient: Math.round(values.pricePayedByClient * 100) / 100,
+      priceOfTransport: Math.round(values.priceOfTransport * 100) / 100,
       totalProfit:
-        values.pricePayedByClient -
-        (values.priceInLari + values.priceOfTransport),
+        Math.round(
+          (values.pricePayedByClient -
+            (values.priceOfTransport + values.priceInLari)) *
+            100,
+        ) / 100,
     };
 
     updateItem(
@@ -85,7 +91,12 @@ function EditItem() {
             <Form.Item
               label="მყიდველი"
               name="buyer"
-              rules={[{ required: true, message: "გთხოვთ შეიყვანოთ მყიდველის სახელი და გვარი" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "გთხოვთ შეიყვანოთ მყიდველის სახელი და გვარი",
+                },
+              ]}
             >
               <Input placeholder="მყიდველის სახელი და გვარი" />
             </Form.Item>
@@ -93,7 +104,9 @@ function EditItem() {
             <Form.Item
               label="გაყიდული ნივთი"
               name="soldItem"
-              rules={[{ required: true, message: "გთხოვთ შეიყვანოთ გაყიდული ნივთი" }]}
+              rules={[
+                { required: true, message: "გთხოვთ შეიყვანოთ გაყიდული ნივთი" },
+              ]}
             >
               <Input.TextArea
                 rows={4}

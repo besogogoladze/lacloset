@@ -14,9 +14,6 @@ function Dashboard() {
   const dataWithComputed = useMemo(() => {
     return [...items]
       .map((item) => {
-        const profit =
-          item.pricePayedByClient - (item.priceOfTransport + item.priceInLari);
-
         const d = new Date(item.createdAt);
         const monthKey = `${d.getFullYear()}-${String(
           d.getMonth() + 1,
@@ -24,7 +21,7 @@ function Dashboard() {
 
         return {
           ...item,
-          totalProfit: profit,
+          totalProfit: item.totalProfit,
           monthKey,
         };
       })
@@ -90,33 +87,39 @@ function Dashboard() {
       title: "ნივთის ღირებულება (€)",
       dataIndex: "priceInEuros",
       sorter: (a, b) => a.priceInEuros - b.priceInEuros,
+      render: (value) => value.toFixed(2),
     },
 
     {
       title: "ნივთის ღირებულება (₾)",
       dataIndex: "priceInLari",
       sorter: (a, b) => a.priceInLari - b.priceInLari,
+      render: (value) => value.toFixed(2),
     },
 
     {
       title: "დარიცხული თანხა (₾)",
       dataIndex: "pricePayedByClient",
+      render: (value) => value.toFixed(2),
     },
 
     {
       title: "გზავნილის ღირებულება (₾)",
       dataIndex: "priceOfTransport",
+      render: (value) => value.toFixed(2),
     },
 
     // ✅ MONTH FILTER
     {
       title: "თვე",
-      dataIndex: "monthKey",
+      dataIndex: "createdAt",
       filters: monthFilters,
       onFilter: (value, record) => record.monthKey === value,
-      render: (monthKey) =>
-        new Date(monthKey + "-01").toLocaleDateString(undefined, {
-          calendar: "gregory",
+      render: (date) =>
+        new Date(date).toLocaleDateString(undefined, {
+          month: "long",
+          year: "numeric",
+          day: "numeric",
         }),
     },
 
@@ -131,7 +134,7 @@ function Dashboard() {
             profit >= 0 ? "text-green-600" : "text-red-500"
           }`}
         >
-          {profit}
+          {profit.toFixed(2)}
         </span>
       ),
     },
@@ -202,7 +205,7 @@ function Dashboard() {
                         profit >= 0 ? "text-green-600" : "text-red-500"
                       }`}
                     >
-                      {profit}
+                      {profit.toFixed(2)}
                     </span>
                   ),
                 },

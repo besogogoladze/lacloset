@@ -14,13 +14,16 @@ export const getCurrentUser = async () => {
 // LOGIN
 // -----------------------------
 export const login = async ({ email, password }) => {
-  const res = await api.post("/auth/login", { email, password });
+  const res = await api.post("/auth/login", {
+    email: email.toLowerCase(),
+    password,
+  });
   return res.data;
 };
 
 export const verifyLoginCode = async ({ email, providedCode }) => {
   const res = await api.post("/auth/verify-code", {
-    email,
+    email: email.toLowerCase(),
     providedCode,
   });
   return res.data;

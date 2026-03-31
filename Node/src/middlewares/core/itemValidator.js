@@ -8,7 +8,7 @@ export const createItemSchema = Joi.object({
   priceInEuros: Joi.number().positive().required(),
   pricePayedByClient: Joi.number().positive().required(),
   priceOfTransport: Joi.number().positive().required(),
-  totalProfit: Joi.number().positive(),
+  totalProfit: Joi.number(),
 });
 
 export const updateItemSchema = Joi.object({
@@ -19,5 +19,5 @@ export const updateItemSchema = Joi.object({
   priceInEuros: Joi.number().positive(),
   pricePayedByClient: Joi.number().positive(),
   priceOfTransport: Joi.number().positive(),
-  totalProfit: Joi.number().positive(),
+  totalProfit: Joi.number(),
 });

@@ -12,14 +12,21 @@ function AddItem() {
     addItem(
       {
         ...values,
+        priceInEuros: Math.round(values.priceInEuros * 100) / 100,
+        priceInLari: Math.round(values.priceInLari * 100) / 100,
+        pricePayedByClient: Math.round(values.pricePayedByClient * 100) / 100,
+        priceOfTransport: Math.round(values.priceOfTransport * 100) / 100,
         totalProfit:
-          values.pricePayedByClient -
-          (values.priceInLari + values.priceOfTransport),
+          Math.round(
+            (values.pricePayedByClient -
+              (values.priceOfTransport + values.priceInLari)) *
+              100,
+          ) / 100,
       },
       {
         onSuccess: () => {
           form.resetFields();
-          navigate("/dashboard")
+          navigate("/dashboard");
         },
       },
     );
