@@ -22,12 +22,12 @@ function Header() {
     {
       key: "change-password",
       icon: <LockOutlined />,
-      label: <Link to="/change-password">Change Password</Link>,
+      label: <Link to="/change-password">პაროლის შეცვლა</Link>,
     },
     {
       key: "logout",
       icon: <LogoutOutlined />,
-      label: "Logout",
+      label: "გამოსვლა",
       danger: true,
       onClick: logout,
       disabled: isLoggingOut,
@@ -58,7 +58,7 @@ function Header() {
                 icon={<UserOutlined />}
                 className="flex items-center gap-1"
               >
-                <span className="hidden sm:inline text-gray-700">Account</span>
+                <span className="hidden sm:inline text-gray-700">პროფილი</span>
               </Button>
             </Dropdown>
           )}

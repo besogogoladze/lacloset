@@ -26,7 +26,7 @@ export const createItem = async (req, res) => {
   }
 };
 
-// UPDATE Item by nom
+// UPDATE Item by name
 export const updateItem = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +78,7 @@ export const updateItemStatus = async (req, res) => {
   }
 };
 
-// DELETE Item by nom
+// DELETE Item by name
 export const deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,12 +100,12 @@ export const deleteItem = async (req, res) => {
   }
 };
 
-// GET a Item by nom
+// GET a Item by name
 export const getItem = async (req, res) => {
   try {
-    const { nom } = req.params;
+    const { name } = req.params;
 
-    const item = await item.findOne({ nom: nom });
+    const item = await item.findOne({ name: name });
 
     if (!item) {
       return res
@@ -139,22 +139,3 @@ export const getAllItems = async (req, res) => {
   }
 };
 
-//Search Item by language
-export const getItemByLanguage = async (req, res) => {
-  const lang = req.query.lang || "en";
-
-  try {
-    if (!["en", "fr", "geo", "ru"].includes(lang)) {
-      throw new Error("Invalid language parameter");
-    }
-    const items = await item.find().lean();
-    const translatedItems = items.map((item) => ({
-      ...item,
-      nom: item.nom[lang],
-      description: item.description[lang],
-    }));
-    return res.json(translatedItems);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};

@@ -3,6 +3,7 @@ import { Form, Input, Button, Alert, Typography } from "antd";
 import OTPPage from "./OTPPage";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
+import img from "../assets/IMG_7788.JPEG";
 
 const { Title } = Typography;
 
@@ -22,8 +23,8 @@ function LoginPage() {
       const res = await loginMutation.mutateAsync(values);
       setOtpEmail(res.email);
       setShowOTP(true);
-    } catch (err) {
-      setLocalError(err.response?.data?.message || "Login failed");
+    } catch {
+      setLocalError("შესვლა ვერ მოხერხდა. გთხოვთ, სცადეთ თავიდან.");
     }
   };
 
@@ -32,6 +33,11 @@ function LoginPage() {
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
         {!showOTP ? (
           <>
+            <img
+              src={img}
+              alt="Login"
+              className="w-30 h-30 mx-auto mb-4 rounded-full object-fill"
+            />
             <Title level={3} className="text-center mb-6">
               Login
             </Title>
@@ -43,44 +49,47 @@ function LoginPage() {
               autoComplete="off"
             >
               <Form.Item
-                label="Email"
+                label="ელფოსტა"
                 name="email"
                 rules={[
-                  { required: true, message: "Please input your email!" },
-                  { type: "email", message: "Invalid email format!" },
+                  {
+                    required: true,
+                    message: "გთხოვთ, შეიყვანეთ თქვენი ელფოსტა!",
+                  },
+                  {
+                    type: "email",
+                    message: "გთხოვთ, შეიყვანეთ სწორი ელფოსტა!",
+                  },
                 ]}
               >
                 <Input
-                  placeholder="Enter your email"
+                  placeholder="შეიყვანეთ თქვენი ელფოსტა"
                   size="large"
                   className="rounded-lg"
                 />
               </Form.Item>
 
               <Form.Item
-                label="Password"
+                label="პაროლი"
                 name="password"
                 rules={[
                   {
                     required: true,
-                    message: "Please input your password!",
+                    message: "გთხოვთ, შეიყვანეთ თქვენი პაროლი!",
                   },
                 ]}
               >
                 <Input.Password
-                  placeholder="Enter your password"
+                  placeholder="შეიყვანეთ თქვენი პაროლი"
                   size="large"
                   className="rounded-lg"
                 />
               </Form.Item>
 
               {localError && (
-                <Alert
-                  title={localError}
-                  type="error"
-                  showIcon
-                  className="mb-4"
-                />
+                <div className="mb-6">
+                  <Alert title={localError} type="error" showIcon />
+                </div>
               )}
 
               <Form.Item>
@@ -92,7 +101,7 @@ function LoginPage() {
                   loading={loginMutation.isPending}
                   className="rounded-lg"
                 >
-                  Login
+                  შესვლა
                 </Button>
               </Form.Item>
 
@@ -102,7 +111,7 @@ function LoginPage() {
                   onClick={() => navigate("/forgot-password")}
                   className="text-sm"
                 >
-                  Forgot Password?
+                  დაგავიწყდათ პაროლი?
                 </Button>
 
                 {/* <Button

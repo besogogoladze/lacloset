@@ -1,174 +1,246 @@
-import { useEffect, useState } from "react";
-import { Card, Tag, Button, Skeleton, Empty, Popconfirm, Image } from "antd";
+import { useMemo } from "react";
+import { Table, Space, Button, Popconfirm, Card, Empty, Input } from "antd";
 import { useItems } from "../services/hooks/useItems";
-import SortList from "../components/SortList";
 import { Link } from "react-router";
 import { useDeleteItems } from "../services/hooks/useDeleteItems";
-import { useUpdateItemStatus } from "../services/hooks/useUpdateItemStatus";
-import altImg from "../assets/No_Image_Available.jpg";
-import { calculateProfitPercent } from "../utils/convertEuroToLari";
+
+const { Search } = Input;
 
 function Dashboard() {
   const { data: items = [], isLoading } = useItems();
-  const [filteredItems, setFilteredItems] = useState([]);
-  const [profits, setProfits] = useState({});
-  const [rate, setRate] = useState(null);
   const { mutate: deleteItem, isLoading: deleteLoading } = useDeleteItems();
-  const updateItemStatus = useUpdateItemStatus();
 
-  useEffect(() => {
-    const fetchProfits = async () => {
-      const results = {};
-      for (const item of items) {
-        try {
-          const { rate } = await calculateProfitPercent(
-            item.price,
-            item.priceInLari,
-          );
-          results[item._id] = await calculateProfitPercent(
-            item.price,
-            item.priceInLari,
-          );
-          setRate(rate);
-        } catch {
-          results[item._id] = 0;
-        }
-      }
-      setProfits(results);
-    };
+  // ✅ Add profit + month key to data
+  const dataWithComputed = useMemo(() => {
+    return [...items]
+      .map((item) => {
+        const profit =
+          item.pricePayedByClient - (item.priceOfTransport + item.priceInLari);
 
-    fetchProfits();
+        const d = new Date(item.createdAt);
+        const monthKey = `${d.getFullYear()}-${String(
+          d.getMonth() + 1,
+        ).padStart(2, "0")}`;
+
+        return {
+          ...item,
+          totalProfit: profit,
+          monthKey,
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [items]);
 
-  if (isLoading) {
-    return (
-      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} active className="rounded-2xl" />
-        ))}
-      </div>
-    );
-  }
-
   const handleDelete = (item) => deleteItem(item._id);
-  const handleComplete = (item) =>
-    updateItemStatus.mutate({ id: item._id, status: !item.status });
+
+  // ✅ Get months for filter dropdown
+  const monthFilters = useMemo(() => {
+    const unique = [...new Set(dataWithComputed.map((i) => i.monthKey))];
+
+    return unique.map((m) => ({
+      text: new Date(m + "-01").toLocaleDateString(undefined, {
+        month: "long",
+        year: "numeric",
+      }),
+      value: m,
+    }));
+  }, [dataWithComputed]);
+
+  // ✅ TABLE COLUMNS
+  const columns = [
+    {
+      title: "მყიდველი",
+      dataIndex: "buyer",
+
+      // ✅ SEARCH FILTER
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+        <div className="p-2">
+          <Search
+            placeholder="Search buyer"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onSearch={confirm}
+            allowClear
+          />
+        </div>
+      ),
+      onFilter: (value, record) =>
+        record.buyer?.toLowerCase().includes(value.toLowerCase()),
+    },
+
+    {
+      title: "გაყიდული ნივთი",
+      dataIndex: "soldItem",
+      render: (text) => (
+        <div className="whitespace-normal wrap-break-word max-w-52">{text}</div>
+      ),
+    },
+
+    {
+      title: "დამატებითი ინფორმაცია",
+      dataIndex: "description",
+      render: (text) => (
+        <div className="whitespace-normal wrap-break-word max-w-52">{text}</div>
+      ),
+    },
+
+    {
+      title: "ნივთის ღირებულება (€)",
+      dataIndex: "priceInEuros",
+      sorter: (a, b) => a.priceInEuros - b.priceInEuros,
+    },
+
+    {
+      title: "ნივთის ღირებულება (₾)",
+      dataIndex: "priceInLari",
+      sorter: (a, b) => a.priceInLari - b.priceInLari,
+    },
+
+    {
+      title: "დარიცხული თანხა (₾)",
+      dataIndex: "pricePayedByClient",
+    },
+
+    {
+      title: "გზავნილის ღირებულება (₾)",
+      dataIndex: "priceOfTransport",
+    },
+
+    // ✅ MONTH FILTER
+    {
+      title: "თვე",
+      dataIndex: "monthKey",
+      filters: monthFilters,
+      onFilter: (value, record) => record.monthKey === value,
+      render: (monthKey) =>
+        new Date(monthKey + "-01").toLocaleDateString(undefined, {
+          calendar: "gregory",
+        }),
+    },
+
+    // ✅ PROFIT
+    {
+      title: "მოგება (₾)",
+      dataIndex: "totalProfit",
+      sorter: (a, b) => a.totalProfit - b.totalProfit,
+      render: (profit) => (
+        <span
+          className={`font-semibold ${
+            profit >= 0 ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {profit}
+        </span>
+      ),
+    },
+
+    // ✅ ACTIONS
+    {
+      title: "მოქმედებები",
+      render: (_, record) => (
+        <Space>
+          <Link to={`./edit/${record._id}`}>
+            <Button type="primary">Edit</Button>
+          </Link>
+
+          <Popconfirm
+            title={`Delete "${record.buyer}"?`}
+            onConfirm={() => handleDelete(record)}
+          >
+            <Button danger loading={deleteLoading}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-3xl font-semibold text-gray-800">🛒 Products</h1>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-semibold">🛒 ინფორმაცია</h1>
 
         <Link
           to="/add-item"
-          className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-5 py-2.5 text-white font-medium hover:bg-blue-600 transition"
+          className="bg-blue-500 text-white px-4 py-2 rounded-xl"
         >
-          + Add item
+          + დამატება
         </Link>
       </div>
 
-      <SortList items={items} onFilterChange={setFilteredItems} />
+      <div>
+        <h2 className="text-xl font-semibold mb-2">მოგება თვეების მიხედვით</h2>
+        <div className="bg-white p-4 rounded-2xl shadow">
+          {dataWithComputed.length === 0 ? (
+            <Card>
+              <Empty description="პროდუქტების სია ცარიელია" />
+            </Card>
+          ) : (
+            <Table
+              columns={[
+                {
+                  title: "თვე",
+                  dataIndex: "monthKey",
+                  filters: monthFilters,
+                  onFilter: (value, record) => record.monthKey === value,
+                  render: (monthKey) =>
+                    new Date(monthKey + "-01").toLocaleDateString(undefined, {
+                      month: "long",
+                      year: "numeric",
+                    }),
+                },
+                {
+                  title: "მოგება (₾)",
+                  dataIndex: "totalProfit",
+                  render: (profit) => (
+                    <span
+                      className={`font-semibold ${
+                        profit >= 0 ? "text-green-600" : "text-red-500"
+                      }`}
+                    >
+                      {profit}
+                    </span>
+                  ),
+                },
+              ]}
+              dataSource={Object.values(
+                dataWithComputed.reduce((acc, item) => {
+                  if (!acc[item.monthKey]) {
+                    acc[item.monthKey] = {
+                      monthKey: item.monthKey,
+                      totalProfit: 0,
+                    };
+                  }
+                  acc[item.monthKey].totalProfit += item.totalProfit;
+                  return acc;
+                }, {}),
+              )}
+              rowKey="monthKey"
+              pagination={{ pageSize: 3 }}
+            />
+          )}
+        </div>
+      </div>
 
-      {/* Content */}
-      {filteredItems.length === 0 ? (
-        <Card className="rounded-2xl shadow-sm">
-          <Empty description="No products found" />
+      {/* TABLE */}
+      {dataWithComputed.length === 0 ? (
+        <Card>
+          <Empty description="პროდუქტების სია ცარიელია" />
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <Card
-              key={item._id}
-              className="max-w-96 p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-            >
-              {/* Title */}
-              <h2 className="max-[460px]:text-center text-lg font-semibold mb-3 truncate">
-                {item.nom}
-              </h2>
-
-              {/* Image */}
-              <div className="flex justify-center mb-4">
-                <Image
-                  src={item.image_url || altImg}
-                  alt={item.nom}
-                  fallback={altImg}
-                  className="rounded-xl object-contain max-h-48"
-                  preview={{ mask: "Click to zoom" }}
-                />
-              </div>
-
-              {/* Info */}
-              <div className="space-y-2 text-sm">
-                <p className="text-gray-600 wrap-break-word font-medium">
-                  {item.description}
-                </p>
-
-                <div className="flex justify-between">
-                  <span className=" font-medium">Size</span>
-                  <span className="font-medium">{item.size}</span>
-                </div>
-
-                <div className="border-t pt-2 space-y-1">
-                  <div className="flex justify-between font-medium">
-                    <span>Price:</span>
-                    <span>{item.price}€</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span>Price (₾):</span>
-                    <span>{item.priceInLari}₾</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span>Profit:</span>
-                    <span>
-                      {profits[item._id]?.profitInLari !== undefined
-                        ? profits[item._id]?.profitInLari.toFixed(2)
-                        : "xxx"}
-                      ₾
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between font-medium">
-                    <span>Current currency:</span>
-                    <span>{rate}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <span className="font-medium">Status</span>
-                  <Tag color={item.status ? "green" : "red"}>
-                    {item.status ? "Available" : "Sold"}
-                  </Tag>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button
-                  type="primary"
-                  className="flex-1"
-                  onClick={() => handleComplete(item)}
-                >
-                  {item.status ? "Mark Sold" : "Mark Available"}
-                </Button>
-
-                <Popconfirm
-                  title={`Delete "${item.nom}"?`}
-                  onConfirm={() => handleDelete(item)}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button danger loading={deleteLoading}>
-                    Delete
-                  </Button>
-                </Popconfirm>
-
-                <Button type="link" className="px-0">
-                  <Link to={`./edit/${item._id}`}>Edit</Link>
-                </Button>
-              </div>
-            </Card>
-          ))}
+        <div className="bg-white p-4 rounded-2xl shadow">
+          <Table
+            columns={columns}
+            dataSource={dataWithComputed}
+            rowKey="_id"
+            loading={isLoading}
+            pagination={{ pageSize: 8 }}
+            scroll={{ x: 500 }}
+          />
         </div>
       )}
     </div>

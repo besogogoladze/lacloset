@@ -5,9 +5,9 @@ import { Link } from "react-router";
 function Error404() {
   return (
     <div>
-      <h1>Error 404: Page Not Found</h1>
+      <h1>Error 404: გვერდი ვერ მოიძებნა</h1>
       <Button type="primary">
-        <Link to="/">Go back to Home</Link>
+        <Link to="/">დაბრუნება მთავარ გვერდზე</Link>
       </Button>
     </div>
   );

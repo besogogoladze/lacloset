@@ -22,7 +22,7 @@ function OTPPage({ email }) {
       setError("");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid Code");
+      setError(err.response?.data?.message || "კოდი არასწორია");
     } finally {
       setLoading(false);
     }
@@ -39,10 +39,10 @@ function OTPPage({ email }) {
     >
       <div style={{ textAlign: "center" }}>
         <Title level={3} style={{ marginBottom: 16 }}>
-          Enter Code
+          შეიყვანეთ კოდი
         </Title>
         <p style={{ color: "#888" }}>
-          A verification code was sent to <strong>{email}</strong>
+          ვერიფიკაციის კოდი გამოგზავნილია <strong>{email}</strong>-ზე
         </p>
 
         <Form
@@ -53,11 +53,11 @@ function OTPPage({ email }) {
           style={{ marginTop: 24 }}
         >
           <Form.Item
-            label="Code"
+            label="კოდი"
             name="code"
-            rules={[{ required: true, message: "Please enter the code!" }]}
+            rules={[{ required: true, message: "გთხოვთ, შეიყვანეთ კოდი!" }]}
           >
-            <Input placeholder="Enter the 6-digit code" maxLength={6} />
+            <Input placeholder="შეიყვანეთ 6 ციფრიანი კოდი" maxLength={6} />
           </Form.Item>
 
           {error && (
@@ -71,7 +71,7 @@ function OTPPage({ email }) {
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={loading}>
-              {loading ? "Verifying..." : "Verify"}
+              {loading ? "ვერიფიკაციის შემოწმება..." : "დადასტურება"}
             </Button>
           </Form.Item>
         </Form>

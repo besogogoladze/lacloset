@@ -27,7 +27,7 @@ function ForgotPasswordPage() {
       navigate("/reset-password", { state: { email: values.email } });
     } catch (err) {
       // errors handled in mutation
-      err.error("Failed to send reset code, please try again");
+      err.error("პაროლის აღდგენა ვერ მოხერხდა");
     } finally {
       setLoading(false);
     }
@@ -51,11 +51,11 @@ function ForgotPasswordPage() {
               label="Email"
               name="email"
               rules={[
-                { required: true, message: "Please input your email!" },
-                { type: "email", message: "Please enter a valid email!" },
+                { required: true, message: "გთხოვთ, შეიყვანეთ თქვენი ელფოსტა!" },
+                { type: "email", message: "გთხოვთ, შეიყვანეთ სწორი ელფოსტა!" },
               ]}
             >
-              <Input placeholder="Enter your email" disabled={cooldown > 0} />
+              <Input placeholder="შეიყვანეთ თქვენი ელფოსტა" disabled={cooldown > 0} />
             </Form.Item>
 
             <Form.Item>
@@ -66,7 +66,7 @@ function ForgotPasswordPage() {
                 loading={loading}
                 disabled={cooldown > 0}
               >
-                {cooldown > 0 ? `Wait ${cooldown}s` : "Send Reset Code"}
+                {cooldown > 0 ? `მოიცადეთ ${cooldown} წამი` : "კოდის გაგზავნა"}
               </Button>
             </Form.Item>
           </Form>

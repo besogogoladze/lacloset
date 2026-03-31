@@ -6,21 +6,24 @@ export const useAddItems = () => {
   const queryClient = useQueryClient();
 
   const addItem = async ({
-    nom,
+    buyer,
+    soldItem,
     description,
-    price,
     priceInLari,
-    size,
-    image_url,
+    priceInEuros,
+    pricePayedByClient,
+    priceOfTransport,
+    totalProfit,
   }) => {
     const payload = {
-      nom: nom,
+      buyer: buyer,
+      soldItem: soldItem,
       description: description,
-      price: price,
       priceInLari: priceInLari,
-      size: size,
-      image_url: image_url,
-      status: true,
+      priceInEuros: priceInEuros,
+      pricePayedByClient: pricePayedByClient,
+      priceOfTransport: priceOfTransport,
+      totalProfit: totalProfit,
     };
     return await api.post("/item", payload);
   };
@@ -32,8 +35,8 @@ export const useAddItems = () => {
       toast.success(res.data.message);
     },
     onError: (error) => {
-      console.error("Failed to add item:", error);
-      toast.error("Failed to add item");
+      console.error("პროდუქტის დამატება ვერ მოხერხდა:", error);
+      toast.error("პროდუქტის დამატება ვერ მოხერხდა");
     },
   });
 };

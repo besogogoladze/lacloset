@@ -1,19 +1,8 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Form,
-  Input,
-  InputNumber,
-  Switch,
-  Button,
-  Card,
-  Image,
-  Empty,
-  Skeleton,
-} from "antd";
+import { Form, Input, InputNumber, Button, Card, Empty, Skeleton } from "antd";
 import { useItems } from "../services/hooks/useItems";
 import { useUpdateItem } from "../services/hooks/useUpdateItem";
-import errorImg from "../assets/No_Image_Available.jpg";
 
 function EditItem() {
   const { id } = useParams();
@@ -24,25 +13,31 @@ function EditItem() {
   const { mutate: updateItem, isLoading } = useUpdateItem();
   const [form] = Form.useForm();
 
-  const imageUrl = Form.useWatch("image_url", form);
-
   useEffect(() => {
     if (item) {
       form.setFieldsValue({
-        nom: item.nom,
+        buyer: item.buyer,
+        soldItem: item.soldItem,
         description: item.description,
-        price: item.price,
+        priceInEuros: item.priceInEuros,
         priceInLari: item.priceInLari,
-        size: item.size,
-        image_url: item.image_url,
-        status: item.status,
+        pricePayedByClient: item.pricePayedByClient,
+        priceOfTransport: item.priceOfTransport,
       });
     }
   }, [item, form]);
 
   const onFinish = (values) => {
+    // Compute totalProfit
+    const payload = {
+      ...values,
+      totalProfit:
+        values.pricePayedByClient -
+        (values.priceInLari + values.priceOfTransport),
+    };
+
     updateItem(
-      { id, payload: values },
+      { id, payload },
       {
         onSuccess: () => navigate("/dashboard"),
       },
@@ -52,7 +47,7 @@ function EditItem() {
   if (itemsLoading) {
     return (
       <div className="p-6 max-w-3xl mx-auto">
-        <Skeleton active paragraph={{ rows: 8 }} />
+        <Skeleton active paragraph={{ rows: 10 }} />
       </div>
     );
   }
@@ -71,7 +66,7 @@ function EditItem() {
     <div className="p-6 flex justify-center">
       <Card className="w-full max-w-3xl rounded-2xl shadow-lg">
         <h2 className="text-3xl font-semibold text-gray-800 text-center mb-8">
-          ✏️ Edit Product
+          ✏️ ინფორმაციის რედაქტირება
         </h2>
 
         <Form
@@ -81,100 +76,81 @@ function EditItem() {
           autoComplete="off"
           className="space-y-6"
         >
-          {/* Basic info */}
+          {/* Product info */}
           <Card className="rounded-xl bg-gray-50">
             <h3 className="font-semibold text-gray-700 mb-4">
-              Product information
+              პროდუქტის ინფორმაცია
             </h3>
 
             <Form.Item
-              label="Name"
-              name="nom"
-              rules={[{ required: true, message: "Please enter item name" }]}
+              label="მყიდველი"
+              name="buyer"
+              rules={[{ required: true, message: "Please enter buyer name" }]}
             >
-              <Input placeholder="Enter item name" />
+              <Input placeholder="მყიდველის სახელი და გვარი" />
             </Form.Item>
 
             <Form.Item
-              label="Description"
-              name="description"
-              rules={[{ required: true, message: "Please enter description" }]}
+              label="გაყიდული ნივთი"
+              name="soldItem"
+              rules={[{ required: true, message: "Please enter sold item" }]}
             >
               <Input.TextArea
                 rows={4}
-                placeholder="Enter item description"
+                placeholder="შეიყვანეთ გაყიდული ნივთის დეტალები"
+                className="resize-none"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="დამატებითი ინფორმაცია"
+              name="description"
+              rules={[{ required: false }]}
+            >
+              <Input.TextArea
+                rows={4}
+                placeholder="შეიყვანეთ დამატებითი ინფორმაცია (არასავალდებულო)"
                 className="resize-none"
               />
             </Form.Item>
           </Card>
 
-          {/* Pricing & size */}
+          {/* Pricing */}
           <Card className="rounded-xl bg-gray-50">
-            <h3 className="font-semibold text-gray-700 mb-4">Pricing & size</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <h3 className="font-semibold text-gray-700 mb-4">ფასები</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Form.Item
-                label="Price (€)"
-                name="price"
-                rules={[{ required: true, message: "Enter price" }]}
+                label="ნივთის ღირებულება (€)"
+                name="priceInEuros"
+                rules={[{ required: true }]}
               >
                 <InputNumber min={0} className="w-full" />
               </Form.Item>
 
               <Form.Item
-                label="Price (₾)"
+                label="ნივთის ღირებულება (₾)"
                 name="priceInLari"
-                rules={[
-                  { required: true, message: "Price in Lari is required" },
-                ]}
+                rules={[{ required: true }]}
               >
                 <InputNumber min={0} className="w-full" />
               </Form.Item>
 
               <Form.Item
-                label="Size"
-                name="size"
-                rules={[{ required: true, message: "Enter size" }]}
+                label="დარიცხული თანხა (₾)"
+                name="pricePayedByClient"
+                rules={[{ required: true }]}
               >
-                <Input placeholder="M, L, XL..." />
+                <InputNumber min={0} className="w-full" />
               </Form.Item>
-            </div>
-          </Card>
 
-          {/* Image */}
-          <Card className="rounded-xl bg-gray-50">
-            <h3 className="font-semibold text-gray-700 mb-4">Product image</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <Form.Item
-                label="Image URL"
-                name="image_url"
-                rules={[{ required: true, message: "Enter image URL" }]}
+                label="გზავნილის ღირებულება (₾)"
+                name="priceOfTransport"
+                rules={[{ required: true }]}
               >
-                <Input placeholder="https://example.com/image.jpg" />
+                <InputNumber min={0} className="w-full" />
               </Form.Item>
-
-              <div className="flex justify-center">
-                <Image
-                  src={imageUrl || errorImg}
-                  fallback={errorImg}
-                  alt="Preview"
-                  className="rounded-xl object-contain max-h-48"
-                />
-              </div>
             </div>
-          </Card>
-
-          {/* Status */}
-          <Card className="rounded-xl bg-gray-50">
-            <Form.Item
-              label="Availability"
-              name="status"
-              valuePropName="checked"
-              className="mb-0"
-            >
-              <Switch checkedChildren="Available" unCheckedChildren="Sold" />
-            </Form.Item>
           </Card>
 
           {/* Actions */}
@@ -186,7 +162,7 @@ function EditItem() {
               loading={isLoading}
               className="h-11 text-base"
             >
-              {isLoading ? "Updating..." : "Update Item"}
+              {isLoading ? "განახლება..." : "პროდუქტის განახლება"}
             </Button>
           </div>
         </Form>

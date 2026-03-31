@@ -14,13 +14,13 @@ const emailTemplate = (title, code, note) => `
   <div style="background:#f4f6fb;padding:30px;font-family:Arial,sans-serif;">
     <div style="max-width:480px;margin:auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
       <div style="display:text-align:center;">
-        <img style="width: 100%;" src="https://scontent-cdg4-2.xx.fbcdn.net/v/t39.30808-6/616047822_26069444999330236_4544253881010343361_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=2285d6&_nc_ohc=W4wEqCWE-a8Q7kNvwEhp_E_&_nc_oc=AdkjAAbdlzsdVRTzXAvqfeINF4GCH1xgnwXdaeplBTV6HIRxero5H02ftdKMAQema-zPWz-qiUglhc2A2zMZBoeX&_nc_zt=23&_nc_ht=scontent-cdg4-2.xx&_nc_gid=rxtdg7qgVA6O2-24Y_QwSw&oh=00_Afolys-1ZSA_p7NkNi_fHv65oB2W2HcFLtFzPHJu86OYCg&oe=697A9CC8" alt="La Closet"}/>
+        <img style="width: 100%;" src="../assets/lacloset.png" alt="La Closet"}/>
       </div>
 
       <div style="padding:30px;text-align:center;">
         <h1 style="margin:0;font-size:22px;">${title}</h1>
         <p style="font-size:15px;color:#444;margin-bottom:20px;">
-          Please use the verification code below:
+          გთხოვთ, გამოიყენოთ ქვემოთ მოცემული ვერიფიკაციის კოდი:
         </p>
 
         <div style="
@@ -42,7 +42,7 @@ const emailTemplate = (title, code, note) => `
         </p>
 
         <p style="font-size:12px;color:#999;margin-top:30px;">
-          If you did not request this, please ignore this email.
+          თუ თქვენ არ მოითხოვეთ ეს, გთხოვთ დაიგნორიროთ ეს წერილი.
         </p>
       </div>
     </div>
@@ -67,7 +67,7 @@ const signUp = async (req, res) => {
       const messages = error.details.map((details) => details.message);
       return res.status(400).json({
         success: false,
-        message: "validation failed",
+        message: "ვალიდაცია ვერ გაიარა",
         errors: messages,
       });
     }
@@ -76,7 +76,7 @@ const signUp = async (req, res) => {
     if (existingUser) {
       return res
         .status(409)
-        .json({ success: false, message: "User already Exists!" });
+        .json({ success: false, message: "მომხმარებელი უკვე არსებობს!" });
     }
 
     const hashedPassword = await doHashing(password, 12);
@@ -88,7 +88,7 @@ const signUp = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Your account has been created successfully",
+      message: "თქვენი პროფილი წარმატებით შეიქმნა",
       user: newUser,
     });
   } catch (error) {
@@ -106,7 +106,7 @@ const login = async (req, res) => {
       const messages = error.details.map((details) => details.message);
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: "ვალიდაცია ვერ გაიარა",
         errors: messages,
       });
     }
@@ -115,7 +115,7 @@ const login = async (req, res) => {
     if (!existingUser) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: "არასწორი ელ.ფოსტა ან პაროლი!",
       });
     }
 
@@ -126,7 +126,7 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: "არასწორი ელ.ფოსტა ან პაროლი!",
       });
     }
 
@@ -135,11 +135,11 @@ const login = async (req, res) => {
     await transporter.sendMail({
       from: "lacloset74@gmail.com",
       to: existingUser.email,
-      subject: "Your verification code",
+      subject: "თქვენი ვერიფიკაციის კოდი",
       html: emailTemplate(
-        "Login Verification",
+        "შესვლის კოდი",
         codeValue,
-        "This code will expire in 5 minutes.",
+        "კოდი ვალიდურია 5 წუთის განმავლობაში. გთხოვთ, გამოიყენოთ კოდი შესასვლელად.",
       ),
     });
 
@@ -153,11 +153,10 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent to your email. Please verify to continue.",
+      message: "OTP კოდი გაგზავნილია თქვენს ელ.ფოსტაზე. გთხოვთ, დაადასტუროთ შესასვლელად.",
       email: existingUser.email,
     });
   } catch (error) {
-    console.error("Sign in error:", error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -170,7 +169,7 @@ const logOut = async (req, res) => {
   res
     .clearCookie("Authorization")
     .status(200)
-    .json({ message: "Sign out successful" });
+    .json({ message: "გამოსვლა წარმატებით დასრულდა" });
 };
 
 /* -------------------- VERIFY CODE -------------------- */
@@ -186,7 +185,7 @@ const verifyCode = async (req, res) => {
       const messages = error.details.map((details) => details.message);
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: "ვალიდაცია ვერ გაიარა",
         errors: messages,
       });
     }
@@ -197,7 +196,7 @@ const verifyCode = async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({
         success: false,
-        message: "User doesn't exist",
+        message: "მომხმარებელი არ არსებობს",
       });
     }
 
@@ -207,14 +206,14 @@ const verifyCode = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "No verification code found. Please log in again.",
+        message: "ვერიფიკაციის კოდი ვერ მოიძებნა. გთხოვთ, ისევ შეიყვანოთ თქვენი ელ.ფოსტა და პაროლი.",
       });
     }
 
     if (Date.now() - existingUser.verificationCodeValidation > 5 * 60 * 1000) {
       return res.status(400).json({
         success: false,
-        message: "Verification code has expired. Please log in again.",
+        message: "ვერიფიკაციის კოდის ვადა ამოიწურა. გთხოვთ, ისევ შეიყვანოთ თქვენი ელ.ფოსტა და პაროლი.",
       });
     }
 
@@ -225,7 +224,7 @@ const verifyCode = async (req, res) => {
     if (hashedCodeValue !== existingUser.verificationCode) {
       return res.status(400).json({
         success: false,
-        message: "Invalid verification code.",
+        message: "არასწორი კოდი. გთხოვთ, შეიყვანოთ სწორი კოდი.",
       });
     }
 
@@ -241,7 +240,7 @@ const verifyCode = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Login successful",
+      message: "შესვლა წარმატებით დასრულდა",
       token: jwtToken,
     });
   } catch (error) {
@@ -266,11 +265,11 @@ const forgotPassword = async (req, res) => {
 
     await transporter.sendMail({
       to: existingUser.email,
-      subject: "Password Reset Code",
+      subject: "პაროლის განახლების კოდი",
       html: emailTemplate(
-        "Password Reset",
+        "პაროლის განახლება",
         codeValue,
-        "Use this code to reset your password. Expires in 5 minutes.",
+        "გამოიყენეთ ეს კოდი პაროლის განახლებისთვის. ვალიდურია 5 წუთის განმავლობაში.",
       ),
     });
 
@@ -284,7 +283,7 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Password reset code sent to " + email,
+      message: "პაროლის განახლების კოდი გაგზავნილია " + email + " -ზე",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -305,7 +304,7 @@ const verifyForgotPassword = async (req, res) => {
       const messages = error.details.map((details) => details.message);
       return res.status(400).json({
         success: false,
-        message: "validation failed",
+        message: "ვალიდაცია ვერ გაიარა",
         errors: messages,
       });
     }
@@ -317,7 +316,7 @@ const verifyForgotPassword = async (req, res) => {
     if (!existingUser) {
       return res
         .status(404)
-        .json({ success: false, message: "User doesn't exist" });
+        .json({ success: false, message: "მომხმარებელი არ არსებობს" });
     }
 
     if (
@@ -326,7 +325,7 @@ const verifyForgotPassword = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "No password reset code found.",
+        message: "პაროლის განახლების კოდი ვერ მოიძებნა.",
       });
     }
 
@@ -336,7 +335,7 @@ const verifyForgotPassword = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Code has expired.",
+        message: "კოდის ვადა ამოიწურა.",
       });
     }
 
@@ -353,13 +352,13 @@ const verifyForgotPassword = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: "Password has been reset successfully",
+        message: "პაროლი წარმატებით განახლდა",
       });
     }
 
     return res.status(400).json({
       success: false,
-      message: "Invalid password reset code",
+      message: "არასწორი პაროლის განახლების კოდი",
     });
   } catch (error) {
     res
@@ -377,7 +376,7 @@ const changePassword = async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "მომხმარებელი არ არსებობს",
       });
     }
 
@@ -387,9 +386,9 @@ const changePassword = async (req, res) => {
       to: existingUser.email,
       subject: "Password Change Code",
       html: emailTemplate(
-        "Change Password",
+        "პაროლის შეცვლა",
         codeValue,
-        "Use this code to confirm your password change.",
+        "გამოიყენეთ ეს კოდი პაროლის შესაცვლელად. ვალიდურია 5 წუთის განმავლობაში.",
       ),
     });
 
@@ -402,7 +401,7 @@ const changePassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `Password change code sent to ${email}`,
+      message: `პაროლის შეცვლის კოდი გაგზავნილია ${email} -ზე`,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -432,13 +431,13 @@ const verifyChangePassword = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: "Password has been changed successfully",
+        message: "პაროლი წარმატებით შეიცვალა",
       });
     }
 
     return res.status(400).json({
       success: false,
-      message: "Invalid password change code",
+      message: "არასწორი პაროლის შეცვლის კოდი",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

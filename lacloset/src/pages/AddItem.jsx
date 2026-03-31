@@ -1,28 +1,35 @@
 import React from "react";
 import { useAddItems } from "../services/hooks/useAddItems";
-import { Form, Input, InputNumber, Button, Card, Image } from "antd";
-import errorImg from "../assets/No_Image_Available.jpg";
+import { Form, Input, InputNumber, Button, Card } from "antd";
+import { useNavigate } from "react-router";
 
 function AddItem() {
   const { mutate: addItem, isLoading } = useAddItems();
   const [form] = Form.useForm();
-
-  const imageUrl = Form.useWatch("image_url", form);
+  const navigate = useNavigate();
 
   const onFinish = (values) => {
-    addItem({
-      ...values,
-      status: true,
-    });
-
-    form.resetFields();
+    addItem(
+      {
+        ...values,
+        totalProfit:
+          values.pricePayedByClient -
+          (values.priceInLari + values.priceOfTransport),
+      },
+      {
+        onSuccess: () => {
+          form.resetFields();
+          navigate("/dashboard")
+        },
+      },
+    );
   };
 
   return (
     <div className="p-6 flex justify-center">
       <Card className="w-full max-w-3xl rounded-2xl shadow-lg">
         <h2 className="text-3xl font-semibold text-gray-800 text-center mb-8">
-          ➕ Add New Product
+          ➕ ინფორმაციის დამატება
         </h2>
 
         <Form
@@ -35,25 +42,36 @@ function AddItem() {
           {/* Product info */}
           <Card className="rounded-xl bg-gray-50">
             <h3 className="font-semibold text-gray-700 mb-4">
-              Product information
+              პროდუქტის ინფორმაცია
             </h3>
 
             <Form.Item
-              label="Name"
-              name="nom"
-              rules={[{ required: true, message: "Please enter item name" }]}
+              label="მყიდველი"
+              name="buyer"
+              rules={[{ required: true, message: "Please enter buyer name" }]}
             >
-              <Input placeholder="Enter item name" />
+              <Input placeholder="მყიდველის სახელი და გვარი" />
             </Form.Item>
 
             <Form.Item
-              label="Description"
-              name="description"
-              rules={[{ required: true, message: "Please enter description" }]}
+              label="გაყიდული ნივთი"
+              name="soldItem"
+              rules={[{ required: true, message: "Please enter sold item" }]}
             >
               <Input.TextArea
                 rows={4}
-                placeholder="Enter item description"
+                placeholder="შეიყვანეთ გაყიდული ნივთის დეტალები"
+                className="resize-none"
+              />
+            </Form.Item>
+            <Form.Item
+              label="დამატებითი ინფორმაცია"
+              name="description"
+              rules={[{ required: false, message: "Please enter description" }]}
+            >
+              <Input.TextArea
+                rows={4}
+                placeholder="შეიყვანეთ დამატებითი ინფორმაცია (არასავალდებულო)"
                 className="resize-none"
               />
             </Form.Item>
@@ -61,19 +79,21 @@ function AddItem() {
 
           {/* Pricing & size */}
           <Card className="rounded-xl bg-gray-50">
-            <h3 className="font-semibold text-gray-700 mb-4">Pricing & size</h3>
+            <h3 className="font-semibold text-gray-700 mb-4">ფასები</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Form.Item
-                label="Price (€)"
-                name="price"
-                rules={[{ required: true, message: "Enter price" }]}
+                label="ნივთის ღირებულება (€)"
+                name="priceInEuros"
+                rules={[
+                  { required: true, message: "Price in Euros is required" },
+                ]}
               >
                 <InputNumber min={0} className="w-full" />
               </Form.Item>
 
               <Form.Item
-                label="Price (₾)"
+                label="ნივთის ღირებულება (₾)"
                 name="priceInLari"
                 rules={[
                   { required: true, message: "Price in Lari is required" },
@@ -83,36 +103,26 @@ function AddItem() {
               </Form.Item>
 
               <Form.Item
-                label="Size"
-                name="size"
-                rules={[{ required: true, message: "Enter size" }]}
+                label="დარიცხული თანხა (₾)"
+                name="pricePayedByClient"
+                rules={[
+                  {
+                    required: true,
+                    message: "Price payed by client is required",
+                  },
+                ]}
               >
-                <Input placeholder="M, L, XL..." />
+                <InputNumber min={0} className="w-full" />
               </Form.Item>
-            </div>
-          </Card>
-
-          {/* Image */}
-          <Card className="rounded-xl bg-gray-50">
-            <h3 className="font-semibold text-gray-700 mb-4">Product image</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <Form.Item
-                label="Image URL"
-                name="image_url"
-                rules={[{ required: true, message: "Enter image URL" }]}
+                label="გზავნილის ღირებულება (₾)"
+                name="priceOfTransport"
+                rules={[
+                  { required: true, message: "Price of transport is required" },
+                ]}
               >
-                <Input placeholder="https://example.com/image.jpg" />
+                <InputNumber min={0} className="w-full" />
               </Form.Item>
-
-              <div className="flex justify-center">
-                <Image
-                  src={imageUrl || errorImg}
-                  fallback={errorImg}
-                  alt="Preview"
-                  className="rounded-xl object-contain max-h-48"
-                />
-              </div>
             </div>
           </Card>
 
@@ -125,7 +135,7 @@ function AddItem() {
               loading={isLoading}
               className="h-11 text-base"
             >
-              {isLoading ? "Adding..." : "Add Item"}
+              {isLoading ? "დამატება..." : "პროდუქტის დამატება"}
             </Button>
           </div>
         </Form>

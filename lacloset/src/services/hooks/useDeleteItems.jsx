@@ -15,11 +15,11 @@ export const useDeleteItems = () => {
     mutationFn: deleteItem,
     onSuccess: (res) => {
       queryClient.invalidateQueries(["items"]);
-      toast.success(res.data?.message || "Item deleted successfully");
+      toast.success(res.data?.message || "პროდუქტი წარმატებით წაიშალა");
     },
     onError: (error) => {
-      console.error("Failed to delete item:", error);
-      toast.error(error.response?.data?.message || "Failed to delete item");
+      console.error("პროდუქტის წაშლა ვერ მოხერხდა:", error);
+      toast.error(error.response?.data?.message || "პროდუქტის წაშლა ვერ მოხერხდა");
     },
   });
 };

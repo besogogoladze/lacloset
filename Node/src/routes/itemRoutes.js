@@ -4,7 +4,6 @@ import {
   deleteItem,
   getAllItems,
   getItem,
-  getItemByLanguage,
   updateItem,
   updateItemStatus,
 } from "../controllers/item.js";
@@ -14,11 +13,9 @@ const itemRoutes = express.Router();
 
 itemRoutes.post("/", authMiddleware, createItem);
 
-itemRoutes.get("/", authMiddleware, getItemByLanguage);
-
 itemRoutes.get("/itemsList", authMiddleware, getAllItems);
 
-itemRoutes.get("/getItem/:nom", authMiddleware, getItem);
+itemRoutes.get("/getItem/:name", authMiddleware, getItem);
 
 itemRoutes.put("/updateItem/:id", authMiddleware, updateItem);
 

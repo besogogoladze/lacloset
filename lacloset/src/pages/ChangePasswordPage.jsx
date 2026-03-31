@@ -80,12 +80,12 @@ function ChangePasswordPage() {
             level={2}
             style={{ textAlign: "center", marginBottom: "24px" }}
           >
-            {step === "request" ? "Change Password" : "Verify Password Change"}
+            {step === "request" ? "პაროლის შეცვლა" : "პაროლის შეცვლის დადასტურება"}
           </Title>
 
           {missingCode && (
             <Alert
-              message="No password change code found. Please request a new one."
+              message="კოდი არასწორია ან ვადაგასულია. გთხოვთ, სცადეთ თავიდან."
               type="warning"
               showIcon
               style={{ marginBottom: "20px" }}
@@ -109,27 +109,27 @@ function ChangePasswordPage() {
               loading={loading}
               disabled={cooldown > 0}
             >
-              {cooldown > 0 ? `Wait ${cooldown}s` : "Send Code"}
+              {cooldown > 0 ? `მოიცადეთ ${cooldown} წამი` : "კოდის გაგზავნა"}
             </Button>
           ) : (
             <Form layout="vertical" onFinish={handleVerify}>
               <Form.Item
-                label="Verification Code"
+                label="ვერიფიკაციის კოდი"
                 name="code"
-                rules={[{ required: true, message: "Please enter the code" }]}
+                rules={[{ required: true, message: "გთხოვთ, შეიყვანეთ ვერიფიკაციის კოდი" }]}
               >
-                <Input placeholder="Enter 6-digit code" />
+                <Input placeholder="შეიყვანეთ 6 ციფრიანი კოდი" />
               </Form.Item>
 
               <Form.Item
-                label="New Password"
+                label="ახალი პაროლი"
                 name="newPassword"
                 rules={[
-                  { required: true, message: "Please enter your new password" },
-                  { min: 8, message: "Password must be at least 8 characters" },
+                  { required: true, message: "გთხოვთ, შეიყვანეთ ახალი პაროლი" },
+                  { min: 8, message: "პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს" },
                 ]}
               >
-                <Input.Password placeholder="Enter new password" />
+                <Input.Password placeholder="შეიყვანეთ ახალი პაროლი" />
               </Form.Item>
 
               <Form.Item>
@@ -140,7 +140,7 @@ function ChangePasswordPage() {
                   loading={loading}
                   disabled={cooldown > 0}
                 >
-                  Change Password
+                  პაროლის შეცვლა
                 </Button>
               </Form.Item>
             </Form>

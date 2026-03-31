@@ -48,10 +48,9 @@ function PasswordResetFlow() {
       }
       setCooldown(10);
     } catch (err) {
-      const msg =
-        err.response?.data?.message || "Reset failed, please try again";
+      const msg = err.response?.data?.message || "პაროლის შეცვლა ვერ მოხერხდა";
 
-      if (msg.includes("No password reset code found")) {
+      if (msg.includes("პაროლის აღდგენის კოდი ვერ მოიძებნა")) {
         setMissingCode(true);
       }
     } finally {
@@ -80,17 +79,17 @@ function PasswordResetFlow() {
             level={2}
             style={{ textAlign: "center", marginBottom: "24px" }}
           >
-            {email ? "Reset Password" : "Change Password"}
+            {email ? "პაროლის აღდგენა" : "პაროლის შეცვლა"}
           </Title>
 
           {missingCode && (
             <Alert
-              message="No reset code found. Please request a new one."
+              message="პაროლის აღდგენის კოდი ვერ მოიძებნა. გთხოვთ, მოითხოვოთ ახალი."
               type="warning"
               showIcon
               description={
                 <Button size="small" type="primary" onClick={handleGoToForgot}>
-                  Go to Forgot Password
+                  პაროლის აღდგენის მოთხოვნა
                 </Button>
               }
               style={{ marginBottom: "20px" }}
@@ -103,11 +102,14 @@ function PasswordResetFlow() {
                 label="Reset Code"
                 name="code"
                 rules={[
-                  { required: true, message: "Please input the reset code!" },
+                  {
+                    required: true,
+                    message: "გთხოვთ, შეიყვანეთ აღდგენის კოდი!",
+                  },
                 ]}
               >
                 <Input
-                  placeholder="Enter reset code"
+                  placeholder="შეიყვანეთ აღდგენის კოდი"
                   disabled={cooldown > 0 || missingCode}
                 />
               </Form.Item>
@@ -117,11 +119,14 @@ function PasswordResetFlow() {
               label="New Password"
               name="newPassword"
               rules={[
-                { required: true, message: "Please input your new password!" },
+                {
+                  required: true,
+                  message: "გთხოვთ, შეიყვანეთ თქვენი ახალი პაროლი!",
+                },
               ]}
             >
               <Input.Password
-                placeholder="Enter new password"
+                placeholder="შეიყვანეთ თქვენი ახალი პაროლი"
                 disabled={cooldown > 0 || missingCode}
               />
             </Form.Item>
@@ -134,7 +139,7 @@ function PasswordResetFlow() {
                 loading={loading}
                 disabled={cooldown > 0 || missingCode}
               >
-                {cooldown > 0 ? `Wait ${cooldown}s` : "Submit"}
+                {cooldown > 0 ? `მოიცადეთ ${cooldown} წამი` : "პაროლის შეცვლა"}
               </Button>
             </Form.Item>
           </Form>

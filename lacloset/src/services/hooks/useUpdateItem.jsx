@@ -7,11 +7,11 @@ export const useUpdateItem = () => {
   return useMutation({
     mutationFn: updateItemById,
     onSuccess: () => {
-      toast.success("Item updated successfully");
+      toast.success("პროდუქტი წარმატებით განახლდა");
       queryClient.invalidateQueries(["items"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Update failed");
+      toast.error(error.response?.data?.message || "განახლება ვერ მოხერხდა");
     },
   });
 };

@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", data.token);
       setToken(data.token);
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Login successful!");
+      toast.success("შესვლა წარმატებით დასრულდა!");
       navigate("/dashboard", { replace: true });
     },
     onError: (err) =>
