@@ -5,6 +5,7 @@ import routes from "./src/routes/routes.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import itemRouter from "./src/routes/itemRoutes.js";
 import connectDB from "./src/config/db.js";
+import path from "path";
 
 dotenv.config();
 
