@@ -18,6 +18,8 @@ app.use("/api/v1", routes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/item", itemRouter);
 
+app.use("/images", express.static(path.join(process.cwd(), "public/images")));
+
 // Add error-handling middleware (helps with 500 errors)
 app.use((err, req, res, next) => {
   console.error(err.stack);

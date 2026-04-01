@@ -14,7 +14,7 @@ const emailTemplate = (title, code, note) => `
   <div style="background:#f4f6fb;padding:30px;font-family:Arial,sans-serif;">
     <div style="max-width:480px;margin:auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
       <div style="display:block;text-align:center;">
-        <img style="width: 100%;" src="../assets/lacloset.png" alt="La Closet"}/>
+        <img style="width: 100%;" src="https://lacloset74.vercel.app/images/lacloset.png" alt="La Closet"}/>
       </div>
 
       <div style="padding:30px;text-align:center;">
@@ -153,7 +153,8 @@ const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "OTP კოდი გაგზავნილია თქვენს ელ.ფოსტაზე. გთხოვთ, დაადასტუროთ შესასვლელად.",
+      message:
+        "OTP კოდი გაგზავნილია თქვენს ელ.ფოსტაზე. გთხოვთ, დაადასტუროთ შესასვლელად.",
       email: existingUser.email,
     });
   } catch (error) {
@@ -206,14 +207,16 @@ const verifyCode = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "ვერიფიკაციის კოდი ვერ მოიძებნა. გთხოვთ, ისევ შეიყვანოთ თქვენი ელ.ფოსტა და პაროლი.",
+        message:
+          "ვერიფიკაციის კოდი ვერ მოიძებნა. გთხოვთ, ისევ შეიყვანოთ თქვენი ელ.ფოსტა და პაროლი.",
       });
     }
 
     if (Date.now() - existingUser.verificationCodeValidation > 5 * 60 * 1000) {
       return res.status(400).json({
         success: false,
-        message: "ვერიფიკაციის კოდის ვადა ამოიწურა. გთხოვთ, ისევ შეიყვანოთ თქვენი ელ.ფოსტა და პაროლი.",
+        message:
+          "ვერიფიკაციის კოდის ვადა ამოიწურა. გთხოვთ, ისევ შეიყვანოთ თქვენი ელ.ფოსტა და პაროლი.",
       });
     }
 
