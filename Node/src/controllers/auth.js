@@ -144,7 +144,7 @@ const login = async (req, res) => {
       attachments: [
         {
           filename: "lacloset.png",
-          path: path.resolve(__dirname, "../assets/lacloset.png"),
+          path: "../assets/lacloset.png",
           cid: "lacloset",
         },
       ],
