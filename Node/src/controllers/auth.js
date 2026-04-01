@@ -141,13 +141,6 @@ const login = async (req, res) => {
         codeValue,
         "კოდი ვალიდურია 5 წუთის განმავლობაში. გთხოვთ, გამოიყენოთ კოდი შესასვლელად.",
       ),
-      attachments: [
-        {
-          filename: "lacloset.png",
-          path: "../assets/lacloset.png",
-          cid: "lacloset",
-        },
-      ],
     });
 
     const hashedCodeValue = hmacProcess(
