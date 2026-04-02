@@ -8,13 +8,26 @@ import {
 import { doHashing, doHashValidation, hmacProcess } from "../utils/hashing.js";
 import jwt from "jsonwebtoken";
 import { transporter } from "../middlewares/auth/sendMail.js";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+// get __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// const imagePath = path.join(process.cwd(), "../../public/images/lacloset.png");
+// const logoBase64 = fs.readFileSync(imagePath).toString("base64");
+
+const imagePath = path.join(process.cwd(), "public/images/lacloset.png");
+const logoBase64 = fs.readFileSync(imagePath).toString("base64");
 
 /* -------------------- EMAIL TEMPLATE -------------------- */
 const emailTemplate = (title, code, note) => `
   <div style="background:#f4f6fb;padding:30px;font-family:Arial,sans-serif;">
     <div style="max-width:480px;margin:auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
       <div style="display:block;text-align:center;">
-        <img style="width: 100%;" src="https://lacloset74.vercel.app/images/lacloset.png" alt="La Closet"}/>
+        <img style="width: 100%;" src="cid:logoImage" alt="La Closet"/>
       </div>
 
       <div style="padding:30px;text-align:center;">
@@ -141,6 +154,13 @@ const login = async (req, res) => {
         codeValue,
         "კოდი ვალიდურია 5 წუთის განმავლობაში. გთხოვთ, გამოიყენოთ კოდი შესასვლელად.",
       ),
+      attachments: [
+        {
+          filename: "lacloset.png",
+          path: path.join(__dirname, "../../public/images/lacloset.png"),
+          cid: "logoImage",
+        },
+      ],
     });
 
     const hashedCodeValue = hmacProcess(
