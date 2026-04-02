@@ -287,6 +287,13 @@ const forgotPassword = async (req, res) => {
         codeValue,
         "გამოიყენეთ ეს კოდი პაროლის განახლებისთვის. ვალიდურია 5 წუთის განმავლობაში.",
       ),
+      attachments: [
+        {
+          filename: "lacloset.png",
+          path: path.join(__dirname, "../../public/images/lacloset.png"),
+          cid: "logoImage",
+        },
+      ],
     });
 
     const hashedCodeValue = hmacProcess(
@@ -406,6 +413,13 @@ const changePassword = async (req, res) => {
         codeValue,
         "გამოიყენეთ ეს კოდი პაროლის შესაცვლელად. ვალიდურია 5 წუთის განმავლობაში.",
       ),
+      attachments: [
+        {
+          filename: "lacloset.png",
+          path: path.join(__dirname, "../../public/images/lacloset.png"),
+          cid: "logoImage",
+        },
+      ],
     });
 
     existingUser.changePasswordCode = hmacProcess(

@@ -21,7 +21,6 @@ const identifier = (req, res, next) => {
       throw new Error("Error in the jwt token ");
     }
   } catch (error) {
-    console.log(error);
     return res
       .status(401)
       .json({ success: false, message: "Invalid or expired token" });
