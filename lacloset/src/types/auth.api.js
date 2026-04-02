@@ -6,8 +6,15 @@ import api from "./api";
 // USER
 // -----------------------------
 export const getCurrentUser = async () => {
-  const res = await api.get("/user");
-  return res.data;
+  try {
+    const res = await api.get("/user");
+    return res.data;
+  } catch (err) {
+    if (err.response?.status === 401) {
+      return null;
+    }
+    throw err; // rethrow other errors
+  }
 };
 
 // -----------------------------
