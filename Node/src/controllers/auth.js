@@ -9,18 +9,11 @@ import { doHashing, doHashValidation, hmacProcess } from "../utils/hashing.js";
 import jwt from "jsonwebtoken";
 import { transporter } from "../middlewares/auth/sendMail.js";
 import path from "path";
-import fs from "fs";
 import { fileURLToPath } from "url";
 
 // get __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// const imagePath = path.join(process.cwd(), "../../public/images/lacloset.png");
-// const logoBase64 = fs.readFileSync(imagePath).toString("base64");
-
-const imagePath = path.join(process.cwd(), "public/images/lacloset.png");
-const logoBase64 = fs.readFileSync(imagePath).toString("base64");
 
 /* -------------------- EMAIL TEMPLATE -------------------- */
 const emailTemplate = (title, code, note) => `
