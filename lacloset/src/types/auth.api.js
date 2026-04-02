@@ -13,6 +13,7 @@ export const getCurrentUser = async () => {
     if (err.response?.status === 401) {
       return null;
     }
+    throw err; // rethrow other errors
   }
 };
 
