@@ -1,6 +1,5 @@
 // src/api/auth.api.js
 
-import { json } from "body-parser";
 import api from "./api";
 
 // -----------------------------
@@ -12,7 +11,7 @@ export const getCurrentUser = async () => {
     return res.data;
   } catch (err) {
     if (err.response?.status === 401) {
-      return json({ message: "Unauthorized" }, { status: 401 }); // Return 401 for unauthorized access
+      return null;
     }
     throw err; // rethrow other errors
   }
