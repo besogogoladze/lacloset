@@ -1,4 +1,4 @@
-import item from "../models/item.js";
+import Item from "../models/item.js";
 import {
   createItemSchema,
   updateItemSchema,
@@ -7,14 +7,16 @@ import {
 // CREATE a new Item
 export const createItem = async (req, res) => {
   try {
-    const { error } = createItemSchema.validate(req.body);
+    const { error } = createItemSchema.validate(req.body, {
+      allowUnknown: true,
+    });
     if (error) {
       return res
         .status(400)
         .json({ success: false, message: error.details[0].message });
     }
 
-    const newItem = await item.create(req.body);
+    const newItem = await Item.create(req.body);
 
     return res.status(201).json({
       success: true,
@@ -26,19 +28,21 @@ export const createItem = async (req, res) => {
   }
 };
 
-// UPDATE Item by name
+// UPDATE Item by id
 export const updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const { error } = updateItemSchema.validate(req.body);
+
     if (error) {
       return res
         .status(400)
         .json({ success: false, message: error.details[0].message });
     }
 
-    const updatedItem = await item.findOneAndUpdate({ _id: id }, req.body, {
+    const updatedItem = await Item.findOneAndUpdate({ _id: id }, req.body, {
       new: true,
+      runValidators: true,
     });
 
     if (!updatedItem) {
@@ -62,28 +66,32 @@ export const updateItemStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const foundedItem = await item.findById(id);
+    const foundedItem = await Item.findById(id);
 
     if (!foundedItem) {
-      return res.status(404).json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
+      return res
+        .status(404)
+        .json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
     }
 
     foundedItem.status = status;
     await foundedItem.save();
 
-    res.json({ success: true, foundedItem });
+    return res.json({ success: true, foundedItem });
   } catch (error) {
     console.error("Error updating item status:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
-// DELETE Item by name
+// DELETE Item by id
 export const deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await item.deleteOne({ _id: id });
+    const result = await Item.deleteOne({ _id: id });
 
     if (result.deletedCount === 0) {
       return res
@@ -100,14 +108,14 @@ export const deleteItem = async (req, res) => {
   }
 };
 
-// GET a Item by name
+// GET item by id
 export const getItem = async (req, res) => {
   try {
-    const { name } = req.params;
+    const { id } = req.params;
 
-    const item = await item.findOne({ name: name });
+    const foundItem = await Item.findById(id);
 
-    if (!item) {
+    if (!foundItem) {
       return res
         .status(404)
         .json({ success: false, message: "პროდუქტი ვერ მოიძებნა" });
@@ -115,7 +123,7 @@ export const getItem = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      item,
+      item: foundItem,
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -125,12 +133,14 @@ export const getItem = async (req, res) => {
 // GET all Items
 export const getAllItems = async (req, res) => {
   try {
-    const items = await item.find();
+    const items = await Item.find().sort({ dealDate: -1, createdAt: -1 });
 
     if (items.length === 0) {
-      return res
-        .status(200)
-        .json({ success: true, message: "პროდუქტები ვერ მოიძებნა", items: [] });
+      return res.status(200).json({
+        success: true,
+        message: "პროდუქტები ვერ მოიძებნა",
+        items: [],
+      });
     }
 
     return res.status(200).json({ success: true, items });
@@ -138,4 +148,3 @@ export const getAllItems = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-

@@ -1,6 +1,16 @@
 import React, { useEffect } from "react";
+import dayjs from "dayjs";
 import { useParams, useNavigate } from "react-router-dom";
-import { Form, Input, InputNumber, Button, Card, Empty, Skeleton } from "antd";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  Card,
+  Empty,
+  Skeleton,
+  DatePicker,
+} from "antd";
 import { useItems } from "../services/hooks/useItems";
 import { useUpdateItem } from "../services/hooks/useUpdateItem";
 
@@ -8,38 +18,43 @@ function EditItem() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: items = [], isLoading: itemsLoading } = useItems();
-  const item = items.find((i) => i._id === id);
+  const currentItem = items.find((i) => i._id === id);
 
   const { mutate: updateItem, isLoading } = useUpdateItem();
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (item) {
+    if (currentItem) {
       form.setFieldsValue({
-        buyer: item.buyer,
-        soldItem: item.soldItem,
-        description: item.description,
-        priceInEuros: item.priceInEuros,
-        priceInLari: item.priceInLari,
-        pricePayedByClient: item.pricePayedByClient,
-        priceOfTransport: item.priceOfTransport,
+        buyer: currentItem.buyer,
+        soldItem: currentItem.soldItem,
+        description: currentItem.description,
+        priceInEuros: currentItem.priceInEuros,
+        priceInLari: currentItem.priceInLari,
+        pricePayedByClient: currentItem.pricePayedByClient,
+        priceOfTransport: currentItem.priceOfTransport,
+        dealDate: currentItem.dealDate ? dayjs(currentItem.dealDate) : null,
       });
     }
-  }, [item, form]);
+  }, [currentItem, form]);
 
   const onFinish = (values) => {
     const payload = {
-      ...values,
-      priceInEuros: Math.round(values.priceInEuros * 100) / 100,
-      priceInLari: Math.round(values.priceInLari * 100) / 100,
-      pricePayedByClient: Math.round(values.pricePayedByClient * 100) / 100,
-      priceOfTransport: Math.round(values.priceOfTransport * 100) / 100,
+      buyer: values.buyer,
+      soldItem: values.soldItem,
+      description: values.description,
+      priceInEuros: Math.round((values.priceInEuros || 0) * 100) / 100,
+      priceInLari: Math.round((values.priceInLari || 0) * 100) / 100,
+      pricePayedByClient:
+        Math.round((values.pricePayedByClient || 0) * 100) / 100,
+      priceOfTransport: Math.round((values.priceOfTransport || 0) * 100) / 100,
       totalProfit:
         Math.round(
-          (values.pricePayedByClient -
-            (values.priceOfTransport + values.priceInLari)) *
+          ((values.pricePayedByClient || 0) -
+            ((values.priceOfTransport || 0) + (values.priceInLari || 0))) *
             100,
         ) / 100,
+      dealDate: values.dealDate ? values.dealDate.toISOString() : null,
     };
 
     updateItem(
@@ -58,7 +73,7 @@ function EditItem() {
     );
   }
 
-  if (!item) {
+  if (!currentItem) {
     return (
       <div className="p-6 max-w-xl mx-auto">
         <Card className="rounded-2xl shadow-sm">
@@ -82,7 +97,6 @@ function EditItem() {
           autoComplete="off"
           className="space-y-6"
         >
-          {/* Product info */}
           <Card className="rounded-xl bg-gray-50">
             <h3 className="font-semibold text-gray-700 mb-4">
               პროდუქტის ინფორმაცია
@@ -115,20 +129,19 @@ function EditItem() {
               />
             </Form.Item>
 
-            <Form.Item
-              label="დამატებითი ინფორმაცია"
-              name="description"
-              rules={[{ required: false }]}
-            >
+            <Form.Item label="დამატებითი ინფორმაცია" name="description">
               <Input.TextArea
                 rows={4}
                 placeholder="შეიყვანეთ დამატებითი ინფორმაცია (არასავალდებულო)"
                 className="resize-none"
               />
             </Form.Item>
+
+            <Form.Item label="თარიღი" name="dealDate">
+              <DatePicker className="w-full" format="YYYY-MM-DD" />
+            </Form.Item>
           </Card>
 
-          {/* Pricing */}
           <Card className="rounded-xl bg-gray-50">
             <h3 className="font-semibold text-gray-700 mb-4">ფასები</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -166,7 +179,6 @@ function EditItem() {
             </div>
           </Card>
 
-          {/* Actions */}
           <div className="pt-4">
             <Button
               type="primary"

@@ -3,21 +3,23 @@ import Joi from "joi";
 export const createItemSchema = Joi.object({
   buyer: Joi.string().min(2).max(255).required(),
   soldItem: Joi.string().min(2).max(255).required(),
-  description: Joi.string().min(0).max(255),
+  description: Joi.string().allow("").max(255).optional(),
   priceInLari: Joi.number().positive().required(),
   priceInEuros: Joi.number().positive().required(),
   pricePayedByClient: Joi.number().positive().required(),
   priceOfTransport: Joi.number().positive().required(),
-  totalProfit: Joi.number(),
+  totalProfit: Joi.number().optional(),
+  dealDate: Joi.date().iso().optional().allow(null),
 });
 
 export const updateItemSchema = Joi.object({
-  buyer: Joi.string().min(2).max(255),
-  soldItem: Joi.string().min(2).max(255),
-  description: Joi.string().min(0).max(255),
-  priceInLari: Joi.number().positive(),
-  priceInEuros: Joi.number().positive(),
-  pricePayedByClient: Joi.number().positive(),
-  priceOfTransport: Joi.number().positive(),
-  totalProfit: Joi.number(),
+  buyer: Joi.string().min(2).max(255).optional(),
+  soldItem: Joi.string().min(2).max(255).optional(),
+  description: Joi.string().allow("").max(255).optional(),
+  priceInLari: Joi.number().positive().optional(),
+  priceInEuros: Joi.number().positive().optional(),
+  pricePayedByClient: Joi.number().positive().optional(),
+  priceOfTransport: Joi.number().positive().optional(),
+  totalProfit: Joi.number().optional(),
+  dealDate: Joi.date().iso().optional().allow(null),
 });

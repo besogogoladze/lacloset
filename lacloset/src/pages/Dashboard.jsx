@@ -30,12 +30,13 @@ function Dashboard() {
 
   const handleDelete = (item) => deleteItem(item._id);
 
-  // ✅ Get months for filter dropdown
   const monthFilters = useMemo(() => {
-    const unique = [...new Set(dataWithComputed.map((i) => i.monthKey))];
+    const unique = [...new Set(dataWithComputed.map((i) => i.monthKey))].filter(
+      (m) => m !== "unknown",
+    );
 
     return unique.map((m) => ({
-      text: new Date(m + "-01").toLocaleDateString(undefined, {
+      text: new Date(`${m}-01`).toLocaleDateString(undefined, {
         month: "long",
         year: "numeric",
       }),
@@ -43,13 +44,25 @@ function Dashboard() {
     }));
   }, [dataWithComputed]);
 
-  // ✅ TABLE COLUMNS
   const columns = [
+    {
+      title: "თარიღი",
+      dataIndex: "dealDate",
+      filters: monthFilters,
+      onFilter: (value, record) => record.monthKey === value,
+      render: (_, record) => {
+        const date = record.dealDate || record.createdAt;
+
+        return new Date(date).toLocaleDateString(undefined, {
+          month: "long",
+          year: "numeric",
+          day: "numeric",
+        });
+      },
+    },
     {
       title: "მყიდველი",
       dataIndex: "buyer",
-
-      // ✅ SEARCH FILTER
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div className="p-2">
           <Search
@@ -66,7 +79,20 @@ function Dashboard() {
       onFilter: (value, record) =>
         record.buyer?.toLowerCase().includes(value.toLowerCase()),
     },
-
+    {
+      title: "მოგება (₾)",
+      dataIndex: "totalProfit",
+      sorter: (a, b) => (a.totalProfit || 0) - (b.totalProfit || 0),
+      render: (profit) => (
+        <span
+          className={`font-semibold ${
+            (profit || 0) >= 0 ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {(profit || 0).toFixed(2)}
+        </span>
+      ),
+    },
     {
       title: "გაყიდული ნივთი",
       dataIndex: "soldItem",
@@ -74,72 +100,37 @@ function Dashboard() {
         <div className="whitespace-normal wrap-break-word max-w-52">{text}</div>
       ),
     },
-
     {
       title: "დამატებითი ინფორმაცია",
       dataIndex: "description",
       render: (text) => (
-        <div className="whitespace-normal wrap-break-word max-w-52">{text}</div>
+        <div className="whitespace-normal wrap-break-word max-w-52">
+          {text || "-"}
+        </div>
       ),
     },
-
     {
       title: "ნივთის ღირებულება (€)",
       dataIndex: "priceInEuros",
       sorter: (a, b) => a.priceInEuros - b.priceInEuros,
-      render: (value) => value.toFixed(2),
+      render: (value) => (value || 0).toFixed(2),
     },
-
     {
       title: "ნივთის ღირებულება (₾)",
       dataIndex: "priceInLari",
       sorter: (a, b) => a.priceInLari - b.priceInLari,
-      render: (value) => value.toFixed(2),
+      render: (value) => (value || 0).toFixed(2),
     },
-
     {
       title: "დარიცხული თანხა (₾)",
       dataIndex: "pricePayedByClient",
-      render: (value) => value.toFixed(2),
+      render: (value) => (value || 0).toFixed(2),
     },
-
     {
       title: "გზავნილის ღირებულება (₾)",
       dataIndex: "priceOfTransport",
-      render: (value) => value.toFixed(2),
+      render: (value) => (value || 0).toFixed(2),
     },
-
-    // ✅ MONTH FILTER
-    {
-      title: "თვე",
-      dataIndex: "createdAt",
-      filters: monthFilters,
-      onFilter: (value, record) => record.monthKey === value,
-      render: (date) =>
-        new Date(date).toLocaleDateString(undefined, {
-          month: "long",
-          year: "numeric",
-          day: "numeric",
-        }),
-    },
-
-    // ✅ PROFIT
-    {
-      title: "მოგება (₾)",
-      dataIndex: "totalProfit",
-      sorter: (a, b) => a.totalProfit - b.totalProfit,
-      render: (profit) => (
-        <span
-          className={`font-semibold ${
-            profit >= 0 ? "text-green-600" : "text-red-500"
-          }`}
-        >
-          {profit.toFixed(2)}
-        </span>
-      ),
-    },
-
-    // ✅ ACTIONS
     {
       title: "მოქმედებები",
       render: (_, record) => (
@@ -161,9 +152,24 @@ function Dashboard() {
     },
   ];
 
+  const monthlyProfitData = Object.values(
+    dataWithComputed.reduce((acc, item) => {
+      if (item.monthKey === "unknown") return acc;
+
+      if (!acc[item.monthKey]) {
+        acc[item.monthKey] = {
+          monthKey: item.monthKey,
+          totalProfit: 0,
+        };
+      }
+
+      acc[item.monthKey].totalProfit += item.totalProfit || 0;
+      return acc;
+    }, {}),
+  ).sort((a, b) => new Date(`${b.monthKey}-01`) - new Date(`${a.monthKey}-01`));
+
   return (
     <div className="p-6 space-y-6">
-      {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-semibold">🛒 ინფორმაცია</h1>
 
@@ -188,10 +194,8 @@ function Dashboard() {
                 {
                   title: "თვე",
                   dataIndex: "monthKey",
-                  filters: monthFilters,
-                  onFilter: (value, record) => record.monthKey === value,
                   render: (monthKey) =>
-                    new Date(monthKey + "-01").toLocaleDateString(undefined, {
+                    new Date(`${monthKey}-01`).toLocaleDateString(undefined, {
                       month: "long",
                       year: "numeric",
                     }),
@@ -202,26 +206,15 @@ function Dashboard() {
                   render: (profit) => (
                     <span
                       className={`font-semibold ${
-                        profit >= 0 ? "text-green-600" : "text-red-500"
+                        (profit || 0) >= 0 ? "text-green-600" : "text-red-500"
                       }`}
                     >
-                      {profit.toFixed(2)}
+                      {(profit || 0).toFixed(2)}
                     </span>
                   ),
                 },
               ]}
-              dataSource={Object.values(
-                dataWithComputed.reduce((acc, item) => {
-                  if (!acc[item.monthKey]) {
-                    acc[item.monthKey] = {
-                      monthKey: item.monthKey,
-                      totalProfit: 0,
-                    };
-                  }
-                  acc[item.monthKey].totalProfit += item.totalProfit;
-                  return acc;
-                }, {}),
-              )}
+              dataSource={monthlyProfitData}
               rowKey="monthKey"
               pagination={{ pageSize: 3 }}
             />
@@ -229,7 +222,6 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* TABLE */}
       {dataWithComputed.length === 0 ? (
         <Card>
           <Empty description="პროდუქტების სია ცარიელია" />
@@ -242,7 +234,7 @@ function Dashboard() {
             rowKey="_id"
             loading={isLoading}
             pagination={{ pageSize: 8 }}
-            scroll={{ x: 500 }}
+            scroll={{ x: 900 }}
           />
         </div>
       )}

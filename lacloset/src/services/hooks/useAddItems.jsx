@@ -14,16 +14,18 @@ export const useAddItems = () => {
     pricePayedByClient,
     priceOfTransport,
     totalProfit,
+    dealDate,
   }) => {
     const payload = {
-      buyer: buyer,
-      soldItem: soldItem,
-      description: description,
-      priceInLari: priceInLari,
-      priceInEuros: priceInEuros,
-      pricePayedByClient: pricePayedByClient,
-      priceOfTransport: priceOfTransport,
-      totalProfit: totalProfit,
+      buyer,
+      soldItem,
+      description,
+      priceInLari,
+      priceInEuros,
+      pricePayedByClient,
+      priceOfTransport,
+      totalProfit,
+      dealDate: dealDate ? new Date(dealDate).toISOString() : null,
     };
     return await api.post("/item", payload);
   };
@@ -31,12 +33,14 @@ export const useAddItems = () => {
   return useMutation({
     mutationFn: addItem,
     onSuccess: (res) => {
-      queryClient.invalidateQueries(["items"]);
+      queryClient.invalidateQueries({ queryKey: ["items"] });
       toast.success(res.data.message);
     },
     onError: (error) => {
       console.error("პროდუქტის დამატება ვერ მოხერხდა:", error);
-      toast.error("პროდუქტის დამატება ვერ მოხერხდა");
+      toast.error(
+        error.response?.data?.message || "პროდუქტის დამატება ვერ მოხერხდა",
+      );
     },
   });
 };

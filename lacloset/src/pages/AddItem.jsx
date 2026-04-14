@@ -1,6 +1,6 @@
 import React from "react";
 import { useAddItems } from "../services/hooks/useAddItems";
-import { Form, Input, InputNumber, Button, Card } from "antd";
+import { Form, Input, InputNumber, Button, Card, DatePicker } from "antd";
 import { useNavigate } from "react-router";
 
 function AddItem() {
@@ -9,27 +9,28 @@ function AddItem() {
   const navigate = useNavigate();
 
   const onFinish = (values) => {
-    addItem(
-      {
-        ...values,
-        priceInEuros: Math.round(values.priceInEuros * 100) / 100,
-        priceInLari: Math.round(values.priceInLari * 100) / 100,
-        pricePayedByClient: Math.round(values.pricePayedByClient * 100) / 100,
-        priceOfTransport: Math.round(values.priceOfTransport * 100) / 100,
-        totalProfit:
-          Math.round(
-            (values.pricePayedByClient -
-              (values.priceOfTransport + values.priceInLari)) *
-              100,
-          ) / 100,
+    const payload = {
+      ...values,
+      priceInEuros: Math.round((values.priceInEuros || 0) * 100) / 100,
+      priceInLari: Math.round((values.priceInLari || 0) * 100) / 100,
+      pricePayedByClient:
+        Math.round((values.pricePayedByClient || 0) * 100) / 100,
+      priceOfTransport: Math.round((values.priceOfTransport || 0) * 100) / 100,
+      totalProfit:
+        Math.round(
+          ((values.pricePayedByClient || 0) -
+            ((values.priceOfTransport || 0) + (values.priceInLari || 0))) *
+            100,
+        ) / 100,
+      dealDate: values.dealDate ? values.dealDate.toISOString() : null,
+    };
+
+    addItem(payload, {
+      onSuccess: () => {
+        form.resetFields();
+        navigate("/dashboard");
       },
-      {
-        onSuccess: () => {
-          form.resetFields();
-          navigate("/dashboard");
-        },
-      },
-    );
+    });
   };
 
   return (
@@ -46,7 +47,6 @@ function AddItem() {
           autoComplete="off"
           className="space-y-6"
         >
-          {/* Product info */}
           <Card className="rounded-xl bg-gray-50">
             <h3 className="font-semibold text-gray-700 mb-4">
               პროდუქტის ინფორმაცია
@@ -71,20 +71,20 @@ function AddItem() {
                 className="resize-none"
               />
             </Form.Item>
-            <Form.Item
-              label="დამატებითი ინფორმაცია"
-              name="description"
-              rules={[{ required: false, message: "Please enter description" }]}
-            >
+
+            <Form.Item label="დამატებითი ინფორმაცია" name="description">
               <Input.TextArea
                 rows={4}
                 placeholder="შეიყვანეთ დამატებითი ინფორმაცია (არასავალდებულო)"
                 className="resize-none"
               />
             </Form.Item>
+
+            <Form.Item label="თარიღი" name="dealDate">
+              <DatePicker className="w-full" format="YYYY-MM-DD" />
+            </Form.Item>
           </Card>
 
-          {/* Pricing & size */}
           <Card className="rounded-xl bg-gray-50">
             <h3 className="font-semibold text-gray-700 mb-4">ფასები</h3>
 
@@ -121,6 +121,7 @@ function AddItem() {
               >
                 <InputNumber min={0} className="w-full" />
               </Form.Item>
+
               <Form.Item
                 label="გზავნილის ღირებულება (₾)"
                 name="priceOfTransport"
@@ -133,7 +134,6 @@ function AddItem() {
             </div>
           </Card>
 
-          {/* Action */}
           <div className="pt-4">
             <Button
               type="primary"
