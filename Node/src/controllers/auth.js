@@ -251,7 +251,8 @@ const verifyCode = async (req, res) => {
     const jwtToken = jwt.sign(
       { userId: existingUser._id, email: existingUser.email },
       process.env.TOKEN_SECRET,
-      { expiresIn: "12h" },
+      // expires in 7 days (adjust as needed)
+      { expiresIn: "7d" },
     );
 
     return res.status(200).json({

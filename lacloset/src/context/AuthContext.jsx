@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import {
   login,
   verifyLoginCode,
-  // signup,
   forgotPassword,
   verifyForgotPassword,
   sendChangePasswordCode,
@@ -29,25 +28,24 @@ export const AuthProvider = ({ children }) => {
 
   const [token, setToken] = useState(() => localStorage.getItem("token"));
 
-  // 🔐 Validate token
   const meQuery = useAuthUser(!!token);
 
+  // 🔐 Handle expired token
   useEffect(() => {
     if (token && meQuery.isError) {
-      // Token is invalid/expired
       localStorage.removeItem("token");
       queryClient.clear();
       navigate("/login", { replace: true });
     }
-  }, [meQuery.isError, navigate, queryClient, token]);
+  }, [token, meQuery.isError, navigate, queryClient]);
 
-  // ✅ derive auth status
+  // ✅ FIXED status logic
   const status = useMemo(() => {
     if (!token) return "unauthenticated";
-    if (meQuery.isLoading) return "checking";
+    if (meQuery.isPending) return "checking";
     if (meQuery.isSuccess) return "authenticated";
     return "unauthenticated";
-  }, [token, meQuery.isLoading, meQuery.isSuccess]);
+  }, [token, meQuery.isPending, meQuery.isSuccess]);
 
   const isAuthenticated = status === "authenticated";
 
@@ -74,24 +72,13 @@ export const AuthProvider = ({ children }) => {
   });
 
   // -----------------------------
-  // SIGNUP
-  // -----------------------------
-  // const signupMutation = useMutation({
-  //   mutationFn: signup,
-  //   onSuccess: () => {
-  //     toast.success("Signup successful!");
-  //     navigate("/login");
-  //   },
-  // });
-
-  // -----------------------------
   // LOGOUT
   // -----------------------------
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
     queryClient.clear();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   // -----------------------------
@@ -107,7 +94,7 @@ export const AuthProvider = ({ children }) => {
       verifyForgotPassword({ email, providedCode, newPassword }),
     onSuccess: (data) => {
       toast.success(data.message || "Password updated");
-      navigate("/login");
+      navigate("/");
     },
   });
 
@@ -131,7 +118,6 @@ export const AuthProvider = ({ children }) => {
 
         loginMutation,
         verifyCodeMutation,
-        // signupMutation,
 
         forgotPasswordMutation,
         resetPasswordMutation,
@@ -146,5 +132,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

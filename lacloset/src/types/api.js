@@ -27,6 +27,7 @@ api.interceptors.response.use(
     if (status === 401) {
       // Unauthorized → remove token
       localStorage.removeItem("token");
+      window.location.href = "/";
     } else {
       toast.error(message);
     }

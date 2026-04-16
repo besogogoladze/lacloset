@@ -1,6 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { Spin } from "antd";
-import Header from "../layouts/Header/Header";
 import { useAuth } from "../context/AuthContext";
 
 const PrivateRoute = () => {
@@ -8,27 +7,17 @@ const PrivateRoute = () => {
 
   if (status === "checking") {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
+      <div className="flex justify-center items-center min-h-screen">
         <Spin size="large" />
       </div>
     );
   }
 
-  return status === "authenticated" ? (
-    <>
-      <Header />
-      <Outlet />
-    </>
-  ) : (
-    <Navigate to="/" replace />
-  );
+  if (status === "unauthenticated") {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default PrivateRoute;
