@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Button, Card, DatePicker } from "antd";
 import { useNavigate } from "react-router";
 
 function AddItem() {
-  const { mutate: addItem, isLoading } = useAddItems();
+  const { mutate: addItem, isPending } = useAddItems();
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -138,11 +138,12 @@ function AddItem() {
             <Button
               type="primary"
               htmlType="submit"
+              disabled={isPending}
+              loading={isPending}
               block
-              loading={isLoading}
               className="h-11 text-base"
             >
-              {isLoading ? "დამატება..." : "პროდუქტის დამატება"}
+              {isPending ? "დამატება..." : "პროდუქტის დამატება"}
             </Button>
           </div>
         </Form>

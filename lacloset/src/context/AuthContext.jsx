@@ -4,6 +4,7 @@ import React, {
   useContext,
   useState,
   useMemo,
+  useEffect,
 } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,15 @@ export const AuthProvider = ({ children }) => {
 
   // 🔐 Validate token
   const meQuery = useAuthUser(!!token);
+
+  useEffect(() => {
+    if (token && meQuery.isError) {
+      // Token is invalid/expired
+      localStorage.removeItem("token");
+      queryClient.clear();
+      navigate("/login", { replace: true });
+    }
+  }, [meQuery.isError, navigate, queryClient, token]);
 
   // ✅ derive auth status
   const status = useMemo(() => {

@@ -17,10 +17,10 @@ import { useUpdateItem } from "../services/hooks/useUpdateItem";
 function EditItem() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: items = [], isLoading: itemsLoading } = useItems();
+  const { data: items = [], isFetching: itemsLoading } = useItems();
   const currentItem = items.find((i) => i._id === id);
 
-  const { mutate: updateItem, isLoading } = useUpdateItem();
+  const { mutate: updateItem, isPending } = useUpdateItem();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -183,11 +183,12 @@ function EditItem() {
             <Button
               type="primary"
               htmlType="submit"
+              disabled={isPending}
               block
-              loading={isLoading}
+              loading={isPending}
               className="h-11 text-base"
             >
-              {isLoading ? "განახლება..." : "პროდუქტის განახლება"}
+              {isPending ? "განახლება..." : "პროდუქტის განახლება"}
             </Button>
           </div>
         </Form>
